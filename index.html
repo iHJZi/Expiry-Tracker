@@ -59,6 +59,19 @@
           </div>
           <div id="item-list" class="item-list" aria-live="polite"></div>
         </section>
+
+        <section aria-labelledby="backup-title" class="stack-section">
+          <div class="section-heading">
+            <h2 id="backup-title">Backup</h2>
+          </div>
+          <p class="backup-copy">Export or import your items as a CSV file.</p>
+          <div class="backup-actions">
+            <button class="button button--ghost" id="export-csv-button" type="button">Export CSV</button>
+            <button class="button button--ghost" id="import-csv-button" type="button">Import CSV</button>
+          </div>
+          <input id="import-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv" />
+          <p id="backup-feedback" class="backup-feedback hidden" aria-live="polite"></p>
+        </section>
       </main>
     </div>
 

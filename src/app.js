@@ -2,6 +2,7 @@ import {
   STATUS_CONFIG,
   formatDate,
   formatDateTime,
+  formatLocalDateInput,
   formatStatusLabel,
   getItemMeta,
   getStatusCounts,
@@ -9,6 +10,7 @@ import {
   sortItemsByUrgency,
 } from "./utils.js";
 import { buildItemPayload, loadItems, saveItems } from "./storage.js";
+import { importItemsFromCsv, serializeItemsToCsv } from "./csv.js";
 
 const state = {
   items: loadItems(),
@@ -26,6 +28,10 @@ const elements = {
   listCaption: document.getElementById("list-caption"),
   itemList: document.getElementById("item-list"),
   addButton: document.getElementById("add-button"),
+  exportCsvButton: document.getElementById("export-csv-button"),
+  importCsvButton: document.getElementById("import-csv-button"),
+  importCsvInput: document.getElementById("import-csv-input"),
+  backupFeedback: document.getElementById("backup-feedback"),
   filterButtons: [...document.querySelectorAll("[data-filter]")],
   countryFilterRow: document.getElementById("country-filter-row"),
   formSheet: document.getElementById("form-sheet"),
@@ -70,6 +76,78 @@ function escapeHtml(value) {
 function saveAndRender() {
   saveItems(state.items);
   render();
+}
+
+function setBackupFeedback(message, tone = "neutral") {
+  elements.backupFeedback.textContent = message;
+  elements.backupFeedback.classList.remove("hidden", "backup-feedback--success", "backup-feedback--error");
+  elements.backupFeedback.classList.toggle("backup-feedback--success", tone === "success");
+  elements.backupFeedback.classList.toggle("backup-feedback--error", tone === "error");
+}
+
+function downloadTextFile(contents, filename, mimeType) {
+  const file = new Blob([contents], { type: mimeType });
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildImportFeedback(result) {
+  const summary = [`Imported ${result.importedCount} item${result.importedCount === 1 ? "" : "s"}.`];
+
+  if (result.skippedCount) {
+    summary.push(`Skipped ${result.skippedCount} row${result.skippedCount === 1 ? "" : "s"}.`);
+  }
+
+  if (result.issues.length) {
+    const visibleIssues = result.issues.slice(0, 3).join(" ");
+    const remainingCount = result.issues.length - 3;
+    summary.push(visibleIssues);
+
+    if (remainingCount > 0) {
+      summary.push(`${remainingCount} more issue${remainingCount === 1 ? "" : "s"} not shown.`);
+    }
+  }
+
+  return summary.join(" ");
+}
+
+function handleExportCsv() {
+  const filename = `documents-tracker-export-${formatLocalDateInput(new Date())}.csv`;
+  downloadTextFile(serializeItemsToCsv(state.items), filename, "text/csv;charset=utf-8");
+  setBackupFeedback(`Exported ${state.items.length} item${state.items.length === 1 ? "" : "s"} to ${filename}.`, "success");
+}
+
+async function handleImportCsv(event) {
+  const file = event.target.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  try {
+    const csvText = await file.text();
+    const result = importItemsFromCsv(csvText, state.items);
+
+    if (result.error) {
+      setBackupFeedback(result.error, "error");
+      return;
+    }
+
+    state.items = [...state.items, ...result.items];
+    saveAndRender();
+    setBackupFeedback(buildImportFeedback(result), result.skippedCount ? "error" : "success");
+  } catch (error) {
+    console.error("Failed to import CSV", error);
+    setBackupFeedback("Could not read the selected CSV file.", "error");
+  } finally {
+    event.target.value = "";
+  }
 }
 
 function setBodySheetState() {
@@ -479,6 +557,12 @@ function handleDelete() {
 
 function registerEvents() {
   elements.addButton.addEventListener("click", () => openForm());
+  elements.exportCsvButton.addEventListener("click", handleExportCsv);
+  elements.importCsvButton.addEventListener("click", () => {
+    elements.importCsvInput.value = "";
+    elements.importCsvInput.click();
+  });
+  elements.importCsvInput.addEventListener("change", handleImportCsv);
   elements.closeFormButton.addEventListener("click", closeForm);
   elements.cancelFormButton.addEventListener("click", closeForm);
   elements.closeDetailsButton.addEventListener("click", closeDetails);

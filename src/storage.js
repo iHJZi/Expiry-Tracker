@@ -6,13 +6,67 @@ function normalizeString(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function normalizeTimestamp(value, fallback) {
+  const normalizedValue = normalizeString(value);
+
+  if (!normalizedValue) {
+    return fallback;
+  }
+
+  const parsed = new Date(normalizedValue);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return fallback;
+  }
+
+  return parsed.toISOString();
+}
+
+function getUniqueId(rawId, usedIds = new Set()) {
+  const normalizedId = normalizeString(rawId);
+
+  if (normalizedId && !usedIds.has(normalizedId)) {
+    usedIds.add(normalizedId);
+    return normalizedId;
+  }
+
+  let nextId = crypto.randomUUID();
+
+  while (usedIds.has(nextId)) {
+    nextId = crypto.randomUUID();
+  }
+
+  usedIds.add(nextId);
+  return nextId;
+}
+
 function normalizeInactiveFlag(raw) {
   if (typeof raw?.isInactive === "boolean") {
     return raw.isInactive;
   }
 
+  if (typeof raw?.isInactive === "string") {
+    const normalizedValue = raw.isInactive.trim().toLowerCase();
+
+    if (["true", "1", "yes", "y"].includes(normalizedValue)) {
+      return true;
+    }
+
+    if (["false", "0", "no", "n", ""].includes(normalizedValue)) {
+      return false;
+    }
+  }
+
   if (raw?.isActive === false) {
     return true;
+  }
+
+  if (typeof raw?.isActive === "string") {
+    const normalizedValue = raw.isActive.trim().toLowerCase();
+
+    if (["false", "0", "no", "n"].includes(normalizedValue)) {
+      return true;
+    }
   }
 
   return false;
@@ -76,5 +130,21 @@ export function buildItemPayload(formValues, existingItem) {
     note: normalizeString(formValues.note),
     createdAt: existingItem?.createdAt || timestamp,
     updatedAt: timestamp,
+  };
+}
+
+export function buildImportedItemPayload(rawItem, usedIds = new Set()) {
+  const timestamp = new Date().toISOString();
+
+  return {
+    id: getUniqueId(rawItem?.id, usedIds),
+    title: normalizeString(rawItem?.title ?? rawItem?.name),
+    country: normalizeString(rawItem?.country),
+    category: normalizeString(rawItem?.category),
+    expiryDate: normalizeDateInput(normalizeString(rawItem?.expiryDate)),
+    isInactive: normalizeInactiveFlag(rawItem),
+    note: normalizeString(rawItem?.note),
+    createdAt: normalizeTimestamp(rawItem?.createdAt, timestamp),
+    updatedAt: normalizeTimestamp(rawItem?.updatedAt, timestamp),
   };
 }

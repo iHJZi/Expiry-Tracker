@@ -237,6 +237,41 @@ button {
   display: none;
 }
 
+.backup-copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.backup-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.backup-feedback {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+
+.backup-feedback--success {
+  border-color: rgba(87, 201, 125, 0.22);
+  background: rgba(87, 201, 125, 0.08);
+  color: #c9f3d6;
+}
+
+.backup-feedback--error {
+  border-color: rgba(240, 108, 114, 0.24);
+  background: rgba(240, 108, 114, 0.08);
+  color: #ffd7da;
+}
+
 .filter-pill {
   padding: 10px 14px;
   border: 1px solid var(--line);
@@ -1076,6 +1111,7 @@ button {
     min-width: max-content;
   }
 
+  .backup-actions,
   .details-card__grid,
   .form-actions {
     grid-template-columns: 1fr;
@@ -1083,6 +1119,13 @@ button {
 
   .details-card__block--full {
     grid-column: auto;
+  }
+
+  .backup-feedback {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 0.92rem;
   }
 
   .update-toast {
