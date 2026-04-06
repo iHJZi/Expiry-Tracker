@@ -1,7 +1,7 @@
 export const STATUS_CONFIG = {
-  expired: { label: "Expired", icon: "⛔", tone: "expired" },
-  soon: { label: "Expiring soon", icon: "⚠", tone: "soon" },
-  valid: { label: "Valid", icon: "✓", tone: "valid" },
+  expired: { label: "Expired", tone: "expired" },
+  soon: { label: "Expiring soon", tone: "soon" },
+  valid: { label: "Valid", tone: "valid" },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -270,12 +270,12 @@ export function getSecondaryText(item) {
   return [item.country, item.category].filter(Boolean).join(" • ") || "No country or category";
 }
 
-export function formatStatusWithIcon(status) {
+export function formatStatusLabel(status) {
   const config = STATUS_CONFIG[status];
 
   if (!config) {
     return "";
   }
 
-  return `${config.icon} ${config.label}`;
+  return config.label;
 }

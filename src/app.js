@@ -2,7 +2,7 @@ import {
   STATUS_CONFIG,
   formatDate,
   formatDateTime,
-  formatStatusWithIcon,
+  formatStatusLabel,
   getItemMeta,
   getSecondaryText,
   getStatusCounts,
@@ -136,7 +136,7 @@ function renderStatusAccent(meta) {
     return '<span class="status-note">Date required</span>';
   }
 
-  return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusWithIcon(meta.status))}</span>`;
+  return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusLabel(meta.status))}</span>`;
 }
 
 function renderSummary() {
