@@ -2,7 +2,6 @@ export const STATUS_CONFIG = {
   expired: { label: "Expired", icon: "⛔", tone: "expired" },
   soon: { label: "Expiring soon", icon: "⚠", tone: "soon" },
   valid: { label: "Valid", icon: "✓", tone: "valid" },
-  inactive: { label: "Inactive", icon: "⏸", tone: "inactive" },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -137,14 +136,10 @@ export function getDaysLeft(expiryDate) {
 }
 
 export function getStatus(item) {
-  if (!item.isActive || !item.expiryDate) {
-    return "inactive";
-  }
-
   const daysLeft = getDaysLeft(item.expiryDate);
 
   if (daysLeft === null) {
-    return "inactive";
+    return null;
   }
 
   if (daysLeft < 0) {
@@ -159,8 +154,8 @@ export function getStatus(item) {
 }
 
 export function getHelperText(status, daysLeft) {
-  if (status === "inactive") {
-    return "Not active";
+  if (!status) {
+    return "Add an expiry date to calculate status.";
   }
 
   if (status === "expired") {
@@ -171,7 +166,7 @@ export function getHelperText(status, daysLeft) {
     return daysLeft === 0 ? "Expires today" : `Expires in ${daysLeft}d`;
   }
 
-  return "Valid for long period";
+  return "Valid for more than 90d";
 }
 
 export function getItemMeta(item) {
@@ -219,10 +214,10 @@ export function sortItemsByUrgency(items) {
       expired: 0,
       soon: 1,
       valid: 2,
-      inactive: 3,
+      none: 3,
     };
 
-    const groupDiff = groupOrder[leftMeta.status] - groupOrder[rightMeta.status];
+    const groupDiff = groupOrder[leftMeta.status || "none"] - groupOrder[rightMeta.status || "none"];
 
     if (groupDiff !== 0) {
       return groupDiff;
@@ -251,15 +246,24 @@ export function sortItemsByUrgency(items) {
 export function getStatusCounts(items) {
   return items.reduce(
     (counts, item) => {
-      counts[getStatus(item)] += 1;
+      const status = getStatus(item);
+
+      if (status) {
+        counts[status] += 1;
+      }
+
       return counts;
     },
-    { expired: 0, soon: 0, valid: 0, inactive: 0 },
+    { expired: 0, soon: 0, valid: 0 },
   );
 }
 
 export function matchesFilter(item, filter) {
-  return filter === "all" ? true : getStatus(item) === filter;
+  if (filter === "all") {
+    return true;
+  }
+
+  return getStatus(item) === filter;
 }
 
 export function getSecondaryText(item) {
@@ -268,5 +272,10 @@ export function getSecondaryText(item) {
 
 export function formatStatusWithIcon(status) {
   const config = STATUS_CONFIG[status];
+
+  if (!config) {
+    return "";
+  }
+
   return `${config.icon} ${config.label}`;
 }

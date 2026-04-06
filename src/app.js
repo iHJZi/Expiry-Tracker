@@ -38,7 +38,6 @@ const elements = {
   categoryInput: document.getElementById("category-input"),
   expiryDateInput: document.getElementById("expiry-date-input"),
   noteInput: document.getElementById("note-input"),
-  activeInput: document.getElementById("active-input"),
   formStatusPreview: document.getElementById("form-status-preview"),
   closeFormButton: document.getElementById("close-form-button"),
   cancelFormButton: document.getElementById("cancel-form-button"),
@@ -114,9 +113,17 @@ function getItemById(itemId) {
   return state.items.find((item) => item.id === itemId) || null;
 }
 
+function renderStatusAccent(meta) {
+  if (!meta.config) {
+    return '<span class="status-note">Date required</span>';
+  }
+
+  return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusWithIcon(meta.status))}</span>`;
+}
+
 function renderSummary() {
   const counts = getStatusCounts(state.items);
-  const summaryOrder = ["valid", "soon", "expired", "inactive"];
+  const summaryOrder = ["valid", "soon", "expired"];
 
   elements.summaryCards.innerHTML = summaryOrder
     .map((status) => {
@@ -173,12 +180,11 @@ function renderList() {
   elements.itemList.innerHTML = items
     .map((item) => {
       const meta = getItemMeta(item);
-      const statusText = formatStatusWithIcon(meta.status);
 
       return `
         <button class="item-card" type="button" data-item-id="${item.id}">
           <div class="item-card__top">
-            <span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(statusText)}</span>
+            ${renderStatusAccent(meta)}
             <span class="item-card__date">${escapeHtml(formatDate(item.expiryDate))}</span>
           </div>
           <p class="item-card__title">${escapeHtml(item.title)}</p>
@@ -204,7 +210,7 @@ function renderDetails() {
 
   elements.detailsContent.innerHTML = `
     <div class="details-card__headline">
-      <span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusWithIcon(meta.status))}</span>
+      ${renderStatusAccent(meta)}
       <h3>${escapeHtml(item.title)}</h3>
     </div>
 
@@ -243,16 +249,19 @@ function renderDetails() {
 
 function renderFormStatusPreview() {
   const previewItem = {
-    isActive: elements.activeInput.checked,
     expiryDate: elements.expiryDateInput.value,
   };
   const meta = getItemMeta(previewItem);
+  const previewLead = meta.config
+    ? renderStatusAccent(meta)
+    : `<span class="status-note">${escapeHtml(meta.helperText)}</span>`;
+  const previewText = meta.config ? `<span>${escapeHtml(meta.helperText)}</span>` : "";
 
   elements.formStatusPreview.innerHTML = `
     <span class="status-preview__title">Automatic status</span>
     <div class="status-preview__content">
-      <span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusWithIcon(meta.status))}</span>
-      <span>${escapeHtml(meta.helperText)}</span>
+      ${previewLead}
+      ${previewText}
     </div>
   `;
 }
@@ -277,7 +286,6 @@ function openForm(itemId = null, options = {}) {
   elements.categoryInput.value = item?.category || "";
   elements.expiryDateInput.value = item?.expiryDate || "";
   elements.noteInput.value = item?.note || "";
-  elements.activeInput.checked = item?.isActive ?? true;
   renderFormStatusPreview();
 
   hideSheet(elements.detailsSheet);
@@ -293,7 +301,6 @@ function closeForm(options = {}) {
   state.editingItemId = null;
   state.returnToDetailsOnFormClose = false;
   elements.form.reset();
-  elements.activeInput.checked = true;
   renderFormStatusPreview();
   hideSheet(elements.formSheet);
 
@@ -345,6 +352,14 @@ function handleFormSubmit(event) {
 
   elements.titleInput.setCustomValidity("");
 
+  if (!elements.expiryDateInput.value) {
+    elements.expiryDateInput.setCustomValidity("Expiry date is required.");
+    elements.expiryDateInput.reportValidity();
+    return;
+  }
+
+  elements.expiryDateInput.setCustomValidity("");
+
   const existingItem = getItemById(state.editingItemId);
   const nextItem = buildItemPayload(
     {
@@ -353,7 +368,6 @@ function handleFormSubmit(event) {
       category: elements.categoryInput.value,
       expiryDate: elements.expiryDateInput.value,
       note: elements.noteInput.value,
-      isActive: elements.activeInput.checked,
     },
     existingItem,
   );
@@ -405,11 +419,11 @@ function registerEvents() {
   elements.form.addEventListener("submit", handleFormSubmit);
 
   ["input", "change"].forEach((eventName) => {
-    elements.activeInput.addEventListener(eventName, renderFormStatusPreview);
     elements.expiryDateInput.addEventListener(eventName, renderFormStatusPreview);
   });
 
   elements.titleInput.addEventListener("input", () => elements.titleInput.setCustomValidity(""));
+  elements.expiryDateInput.addEventListener("input", () => elements.expiryDateInput.setCustomValidity(""));
 
   elements.filterButtons.forEach((button) => {
     button.addEventListener("click", () => {

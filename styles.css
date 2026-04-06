@@ -12,7 +12,6 @@
   --expired: #f06c72;
   --soon: #edc15c;
   --valid: #57c97d;
-  --inactive: #7d8580;
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
   --radius: 22px;
   --radius-sm: 16px;
@@ -188,10 +187,6 @@ button {
   background: var(--valid);
 }
 
-.summary-card--inactive .summary-card__dot {
-  background: var(--inactive);
-}
-
 .filter-row {
   display: flex;
   gap: 10px;
@@ -311,9 +306,16 @@ button {
   color: #abf2c1;
 }
 
-.status-badge--inactive {
-  background: rgba(125, 133, 128, 0.18);
-  color: #d0d4d1;
+.status-note {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
 }
 
 .empty-state {
@@ -479,31 +481,6 @@ button {
   min-height: 110px;
 }
 
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: start;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.toggle-row__hint {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.toggle-row input {
-  margin-top: 2px;
-  width: 22px;
-  height: 22px;
-  accent-color: var(--valid);
-}
-
 .status-preview {
   min-height: 58px;
   padding: 14px 16px;
@@ -650,7 +627,7 @@ button {
   }
 
   .summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .sheet {

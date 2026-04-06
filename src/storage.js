@@ -16,7 +16,6 @@ function normalizeItem(raw) {
     category: normalizeString(raw?.category),
     expiryDate: normalizeDateInput(normalizeString(raw?.expiryDate)),
     note: normalizeString(raw?.note),
-    isActive: raw?.isActive !== false,
     createdAt: normalizeString(raw?.createdAt) || now,
     updatedAt: normalizeString(raw?.updatedAt) || now,
   };
@@ -61,7 +60,6 @@ export function buildItemPayload(formValues, existingItem) {
     category: normalizeString(formValues.category),
     expiryDate: normalizeDateInput(normalizeString(formValues.expiryDate)),
     note: normalizeString(formValues.note),
-    isActive: Boolean(formValues.isActive),
     createdAt: existingItem?.createdAt || timestamp,
     updatedAt: timestamp,
   };
