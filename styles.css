@@ -12,6 +12,7 @@
   --expired: #f06c72;
   --soon: #edc15c;
   --valid: #57c97d;
+  --inactive: #9ea9b7;
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
   --radius: 22px;
   --radius-sm: 16px;
@@ -187,6 +188,10 @@ button {
   background: var(--valid);
 }
 
+.summary-card--inactive .summary-card__dot {
+  background: var(--inactive);
+}
+
 .filter-row {
   display: flex;
   gap: 10px;
@@ -321,6 +326,11 @@ button {
 .status-badge--valid {
   background: rgba(87, 201, 125, 0.16);
   color: #abf2c1;
+}
+
+.status-badge--inactive {
+  background: rgba(158, 169, 183, 0.16);
+  color: #d7dfe9;
 }
 
 .status-note {
@@ -483,7 +493,7 @@ button {
   color: var(--muted-strong);
 }
 
-.field input,
+.field input:not([type="checkbox"]),
 .field textarea {
   width: 100%;
   padding: 14px 15px;
@@ -496,6 +506,33 @@ button {
 .field textarea {
   resize: vertical;
   min-height: 110px;
+}
+
+.field--toggle {
+  gap: 0;
+}
+
+.field__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--muted-strong);
+}
+
+.field__toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #d9ddd6;
+}
+
+.field__toggle-text {
+  line-height: 1.2;
 }
 
 .status-preview {
@@ -652,7 +689,7 @@ button {
   }
 
   .summary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .sheet {

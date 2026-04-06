@@ -38,6 +38,7 @@ const elements = {
   countryInput: document.getElementById("country-input"),
   categoryInput: document.getElementById("category-input"),
   expiryDateInput: document.getElementById("expiry-date-input"),
+  inactiveInput: document.getElementById("inactive-input"),
   noteInput: document.getElementById("note-input"),
   formStatusPreview: document.getElementById("form-status-preview"),
   closeFormButton: document.getElementById("close-form-button"),
@@ -138,9 +139,15 @@ function renderStatusAccent(meta) {
   return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusLabel(meta.status))}</span>`;
 }
 
+function syncExpiryDateRequirement() {
+  const isInactive = elements.inactiveInput.checked;
+  elements.expiryDateInput.required = !isInactive;
+  elements.expiryDateInput.setCustomValidity("");
+}
+
 function renderSummary() {
   const counts = getStatusCounts(state.items);
-  const summaryOrder = ["valid", "soon", "expired"];
+  const summaryOrder = ["valid", "soon", "expired", "inactive"];
 
   elements.summaryCards.innerHTML = summaryOrder
     .map((status) => {
@@ -292,6 +299,7 @@ function renderDetails() {
 function renderFormStatusPreview() {
   const previewItem = {
     expiryDate: elements.expiryDateInput.value,
+    isInactive: elements.inactiveInput.checked,
   };
   const meta = getItemMeta(previewItem);
   const previewLead = meta.config
@@ -300,7 +308,7 @@ function renderFormStatusPreview() {
   const previewText = meta.config ? `<span>${escapeHtml(meta.helperText)}</span>` : "";
 
   elements.formStatusPreview.innerHTML = `
-    <span class="status-preview__title">Automatic status</span>
+    <span class="status-preview__title">Status preview</span>
     <div class="status-preview__content">
       ${previewLead}
       ${previewText}
@@ -327,7 +335,9 @@ function openForm(itemId = null, options = {}) {
   elements.countryInput.value = item?.country || "";
   elements.categoryInput.value = item?.category || "";
   elements.expiryDateInput.value = item?.expiryDate || "";
+  elements.inactiveInput.checked = Boolean(item?.isInactive);
   elements.noteInput.value = item?.note || "";
+  syncExpiryDateRequirement();
   renderFormStatusPreview();
 
   hideSheet(elements.detailsSheet);
@@ -343,6 +353,7 @@ function closeForm(options = {}) {
   state.editingItemId = null;
   state.returnToDetailsOnFormClose = false;
   elements.form.reset();
+  syncExpiryDateRequirement();
   renderFormStatusPreview();
   hideSheet(elements.formSheet);
 
@@ -394,7 +405,7 @@ function handleFormSubmit(event) {
 
   elements.titleInput.setCustomValidity("");
 
-  if (!elements.expiryDateInput.value) {
+  if (!elements.inactiveInput.checked && !elements.expiryDateInput.value) {
     elements.expiryDateInput.setCustomValidity("Expiry date is required.");
     elements.expiryDateInput.reportValidity();
     return;
@@ -409,6 +420,7 @@ function handleFormSubmit(event) {
       country: elements.countryInput.value,
       category: elements.categoryInput.value,
       expiryDate: elements.expiryDateInput.value,
+      isInactive: elements.inactiveInput.checked,
       note: elements.noteInput.value,
     },
     existingItem,
@@ -464,6 +476,10 @@ function registerEvents() {
     elements.expiryDateInput.addEventListener(eventName, renderFormStatusPreview);
   });
 
+  elements.inactiveInput.addEventListener("change", () => {
+    syncExpiryDateRequirement();
+    renderFormStatusPreview();
+  });
   elements.titleInput.addEventListener("input", () => elements.titleInput.setCustomValidity(""));
   elements.expiryDateInput.addEventListener("input", () => elements.expiryDateInput.setCustomValidity(""));
 

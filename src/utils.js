@@ -2,6 +2,7 @@ export const STATUS_CONFIG = {
   expired: { label: "Expired", tone: "expired" },
   soon: { label: "Expiring soon", tone: "soon" },
   valid: { label: "Valid", tone: "valid" },
+  inactive: { label: "Inactive", tone: "inactive" },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -136,6 +137,10 @@ export function getDaysLeft(expiryDate) {
 }
 
 export function getStatus(item) {
+  if (item?.isInactive) {
+    return "inactive";
+  }
+
   const daysLeft = getDaysLeft(item.expiryDate);
 
   if (daysLeft === null) {
@@ -154,6 +159,10 @@ export function getStatus(item) {
 }
 
 export function getHelperText(status, daysLeft) {
+  if (status === "inactive") {
+    return "Marked as inactive";
+  }
+
   if (!status) {
     return "Add an expiry date to calculate status.";
   }
@@ -171,7 +180,7 @@ export function getHelperText(status, daysLeft) {
 
 export function getItemMeta(item) {
   const status = getStatus(item);
-  const daysLeft = getDaysLeft(item.expiryDate);
+  const daysLeft = status === "inactive" ? null : getDaysLeft(item.expiryDate);
   const helperText = getHelperText(status, daysLeft);
 
   return {
@@ -214,7 +223,8 @@ export function sortItemsByUrgency(items) {
       expired: 0,
       soon: 1,
       valid: 2,
-      none: 3,
+      inactive: 3,
+      none: 4,
     };
 
     const groupDiff = groupOrder[leftMeta.status || "none"] - groupOrder[rightMeta.status || "none"];
@@ -254,7 +264,7 @@ export function getStatusCounts(items) {
 
       return counts;
     },
-    { expired: 0, soon: 0, valid: 0 },
+    { expired: 0, soon: 0, valid: 0, inactive: 0 },
   );
 }
 

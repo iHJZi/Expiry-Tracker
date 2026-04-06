@@ -6,6 +6,18 @@ function normalizeString(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function normalizeInactiveFlag(raw) {
+  if (typeof raw?.isInactive === "boolean") {
+    return raw.isInactive;
+  }
+
+  if (raw?.isActive === false) {
+    return true;
+  }
+
+  return false;
+}
+
 function normalizeItem(raw) {
   const now = new Date().toISOString();
 
@@ -15,6 +27,7 @@ function normalizeItem(raw) {
     country: normalizeString(raw?.country),
     category: normalizeString(raw?.category),
     expiryDate: normalizeDateInput(normalizeString(raw?.expiryDate)),
+    isInactive: normalizeInactiveFlag(raw),
     note: normalizeString(raw?.note),
     createdAt: normalizeString(raw?.createdAt) || now,
     updatedAt: normalizeString(raw?.updatedAt) || now,
@@ -59,6 +72,7 @@ export function buildItemPayload(formValues, existingItem) {
     country: normalizeString(formValues.country),
     category: normalizeString(formValues.category),
     expiryDate: normalizeDateInput(normalizeString(formValues.expiryDate)),
+    isInactive: Boolean(formValues.isInactive),
     note: normalizeString(formValues.note),
     createdAt: existingItem?.createdAt || timestamp,
     updatedAt: timestamp,
