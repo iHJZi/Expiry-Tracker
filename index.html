@@ -34,12 +34,38 @@
           <div class="section-heading">
             <h2 id="filter-title">Filter</h2>
           </div>
-          <div class="filter-row" role="tablist" aria-label="Item filters">
-            <button class="filter-pill is-active" data-filter="all" type="button">All</button>
-            <button class="filter-pill" data-filter="soon" type="button">Soon</button>
-            <button class="filter-pill" data-filter="expired" type="button">Expired</button>
-            <button class="filter-pill" data-filter="valid" type="button">Valid</button>
-            <button class="filter-pill" data-filter="inactive" type="button">Inactive</button>
+          <div id="filter-control" class="filter-control">
+            <button
+              id="filter-toggle-button"
+              class="filter-toggle"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="filter-menu"
+            >
+              <span class="filter-toggle__text">
+                Filter:
+                <span id="filter-current-label" class="filter-toggle__value">All</span>
+              </span>
+              <span class="filter-toggle__chevron" aria-hidden="true">▾</span>
+            </button>
+            <div id="filter-menu" class="filter-menu hidden" role="listbox" aria-label="Item filters">
+              <button class="filter-option is-active" data-filter="all" role="option" aria-selected="true" type="button">
+                All
+              </button>
+              <button class="filter-option" data-filter="soon" role="option" aria-selected="false" type="button">
+                Soon
+              </button>
+              <button class="filter-option" data-filter="expired" role="option" aria-selected="false" type="button">
+                Expired
+              </button>
+              <button class="filter-option" data-filter="valid" role="option" aria-selected="false" type="button">
+                Valid
+              </button>
+              <button class="filter-option" data-filter="inactive" role="option" aria-selected="false" type="button">
+                Inactive
+              </button>
+            </div>
           </div>
         </section>
 

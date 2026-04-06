@@ -14,6 +14,7 @@ import { buildItemPayload, loadItems, saveItems } from "./storage.js";
 const state = {
   items: loadItems(),
   filter: "all",
+  filterMenuOpen: false,
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
@@ -26,6 +27,10 @@ const elements = {
   listCaption: document.getElementById("list-caption"),
   itemList: document.getElementById("item-list"),
   addButton: document.getElementById("add-button"),
+  filterControl: document.getElementById("filter-control"),
+  filterToggleButton: document.getElementById("filter-toggle-button"),
+  filterCurrentLabel: document.getElementById("filter-current-label"),
+  filterMenu: document.getElementById("filter-menu"),
   filterButtons: [...document.querySelectorAll("[data-filter]")],
   formSheet: document.getElementById("form-sheet"),
   detailsSheet: document.getElementById("details-sheet"),
@@ -110,6 +115,11 @@ function hideUpdatePrompt() {
   elements.updateToast.classList.add("hidden");
 }
 
+function setFilterMenuOpen(isOpen) {
+  state.filterMenuOpen = isOpen;
+  renderFilters();
+}
+
 function getItemById(itemId) {
   return state.items.find((item) => item.id === itemId) || null;
 }
@@ -136,8 +146,18 @@ function renderSummary() {
 }
 
 function renderFilters() {
+  const activeButton = elements.filterButtons.find((button) => button.dataset.filter === state.filter);
+
+  elements.filterCurrentLabel.textContent = activeButton?.textContent.trim() || "All";
+  elements.filterToggleButton.setAttribute("aria-expanded", String(state.filterMenuOpen));
+  elements.filterControl.classList.toggle("is-open", state.filterMenuOpen);
+  elements.filterMenu.classList.toggle("hidden", !state.filterMenuOpen);
+
   elements.filterButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.filter === state.filter);
+    const isActive = button.dataset.filter === state.filter;
+
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
   });
 }
 
@@ -383,6 +403,7 @@ function handleDelete() {
 
 function registerEvents() {
   elements.addButton.addEventListener("click", () => openForm());
+  elements.filterToggleButton.addEventListener("click", () => setFilterMenuOpen(!state.filterMenuOpen));
   elements.closeFormButton.addEventListener("click", closeForm);
   elements.cancelFormButton.addEventListener("click", closeForm);
   elements.closeDetailsButton.addEventListener("click", closeDetails);
@@ -414,8 +435,22 @@ function registerEvents() {
   elements.filterButtons.forEach((button) => {
     button.addEventListener("click", () => {
       state.filter = button.dataset.filter;
+      state.filterMenuOpen = false;
       render();
+      elements.filterToggleButton.focus();
     });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!state.filterMenuOpen) {
+      return;
+    }
+
+    if (event.target.closest("#filter-control")) {
+      return;
+    }
+
+    setFilterMenuOpen(false);
   });
 
   elements.itemList.addEventListener("click", (event) => {
@@ -452,6 +487,12 @@ function registerEvents() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") {
+      return;
+    }
+
+    if (state.filterMenuOpen) {
+      setFilterMenuOpen(false);
+      elements.filterToggleButton.focus();
       return;
     }
 
