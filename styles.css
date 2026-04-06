@@ -493,6 +493,115 @@ button {
   font-size: clamp(1.9rem, 7vw, 2.4rem);
 }
 
+#form-sheet .icon-button {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 10px 26px rgba(0, 0, 0, 0.16);
+}
+
+#form-sheet .item-form {
+  width: min(100%, 680px);
+  margin: 0 auto;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(237, 193, 92, 0.06), transparent 34%),
+    linear-gradient(180deg, rgba(22, 28, 26, 0.9), rgba(15, 20, 18, 0.92));
+  box-shadow:
+    0 28px 72px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+#form-sheet .field__label {
+  color: #d4dad5;
+}
+
+#form-sheet .field input:not([type="checkbox"]),
+#form-sheet .field textarea {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.03));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.028),
+    0 1px 0 rgba(0, 0, 0, 0.14);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+#form-sheet .field input:not([type="checkbox"]):focus,
+#form-sheet .field textarea:focus {
+  outline: none;
+  border-color: rgba(237, 193, 92, 0.22);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.04));
+  box-shadow:
+    0 0 0 3px rgba(237, 193, 92, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.032);
+}
+
+#form-sheet .field__toggle {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.028));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.026),
+    0 1px 0 rgba(0, 0, 0, 0.12);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+#form-sheet .field__toggle:focus-within {
+  border-color: rgba(237, 193, 92, 0.22);
+  box-shadow:
+    0 0 0 3px rgba(237, 193, 92, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.026);
+}
+
+#form-sheet .field.is-disabled input:not([type="checkbox"]) {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+#form-sheet .status-preview {
+  border-color: rgba(255, 255, 255, 0.11);
+  background:
+    radial-gradient(circle at top right, rgba(87, 201, 125, 0.07), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.024));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.026),
+    0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+#form-sheet .status-preview__title {
+  color: #b2bbb5;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+#form-sheet .form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: 4px;
+  padding-top: 12px;
+  background: linear-gradient(180deg, rgba(14, 18, 17, 0), rgba(14, 18, 17, 0.9) 38%, rgba(14, 18, 17, 0.98));
+}
+
+#form-sheet .button {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 26px rgba(0, 0, 0, 0.18);
+}
+
+#form-sheet .button--ghost {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.03));
+}
+
 .sheet__header,
 .sheet__header--compact {
   display: flex;
@@ -729,7 +838,9 @@ button {
   }
 
   #form-sheet .item-form {
+    padding: 12px;
     gap: 10px;
+    border-radius: 20px;
   }
 
   #form-sheet .field {
@@ -796,6 +907,7 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     margin-top: 0;
+    padding-top: 8px;
   }
 
   #form-sheet .button {
