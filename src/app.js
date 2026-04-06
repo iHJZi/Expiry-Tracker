@@ -22,6 +22,7 @@ const state = {
 
 const elements = {
   summaryCards: document.getElementById("summary-cards"),
+  itemsSection: document.getElementById("items-section"),
   listCaption: document.getElementById("list-caption"),
   itemList: document.getElementById("item-list"),
   addButton: document.getElementById("add-button"),
@@ -152,6 +153,15 @@ function renderEmptyState() {
 }
 
 function renderList() {
+  const hasAnyItems = state.items.length > 0;
+  elements.itemsSection.classList.toggle("hidden", !hasAnyItems);
+
+  if (!hasAnyItems) {
+    elements.listCaption.textContent = "";
+    elements.itemList.innerHTML = "";
+    return;
+  }
+
   const items = getFilteredItems();
 
   if (!items.length) {
