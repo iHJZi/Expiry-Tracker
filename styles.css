@@ -87,6 +87,66 @@ button {
   padding: 12px 4px 20px;
 }
 
+.hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hero__top h1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.backup-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.utility-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  color: var(--muted-strong);
+}
+
+.utility-button__icon {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
+
+.backup-menu__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 10;
+  width: min(250px, calc(100vw - 44px));
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(23, 29, 27, 0.98), rgba(18, 23, 21, 0.98));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.backup-menu__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backup-menu__actions .button {
+  min-height: 44px;
+}
+
 .hero__eyebrow,
 .sheet__kicker {
   margin: 0 0 6px;
@@ -237,27 +297,15 @@ button {
   display: none;
 }
 
-.backup-copy {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.backup-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
 .backup-feedback {
-  margin: 14px 0 0;
-  padding: 12px 14px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--muted-strong);
   line-height: 1.5;
+  font-size: 0.92rem;
 }
 
 .backup-feedback--success {
@@ -311,6 +359,7 @@ button {
 .item-card:focus-visible,
 .filter-pill:focus-visible,
 .button:focus-visible,
+.utility-button:focus-visible,
 .icon-button:focus-visible,
 .fab:focus-visible,
 .sheet__scrim:focus-visible {
@@ -999,6 +1048,22 @@ button {
 }
 
 @media (max-width: 520px) {
+  .hero__top {
+    gap: 12px;
+  }
+
+  .utility-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+  }
+
+  .backup-menu__panel {
+    width: min(232px, calc(100vw - 32px));
+    padding: 10px;
+    border-radius: 16px;
+  }
+
   #form-sheet .sheet__panel {
     padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
   }
@@ -1111,7 +1176,6 @@ button {
     min-width: max-content;
   }
 
-  .backup-actions,
   .details-card__grid,
   .form-actions {
     grid-template-columns: 1fr;
@@ -1119,13 +1183,6 @@ button {
 
   .details-card__block--full {
     grid-column: auto;
-  }
-
-  .backup-feedback {
-    margin-top: 12px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    font-size: 0.92rem;
   }
 
   .update-toast {

@@ -19,7 +19,32 @@
   <body>
     <div class="app-shell">
       <header class="hero">
-        <h1>Documents Tracker</h1>
+        <div class="hero__top">
+          <h1>Documents Tracker</h1>
+          <div class="backup-menu" data-backup-menu>
+            <button
+              id="backup-menu-button"
+              class="utility-button"
+              type="button"
+              aria-label="Backup options"
+              aria-expanded="false"
+              aria-controls="backup-menu-panel"
+            >
+              <svg class="utility-button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M7 8h10M14 5l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M17 16H7M10 13l-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <div id="backup-menu-panel" class="backup-menu__panel hidden" role="group" aria-label="Backup actions" aria-hidden="true">
+              <div class="backup-menu__actions">
+                <button class="button button--ghost" id="export-csv-button" type="button">Export CSV</button>
+                <button class="button button--ghost" id="import-csv-button" type="button">Import CSV</button>
+              </div>
+              <input id="import-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv" />
+              <p id="backup-feedback" class="backup-feedback hidden" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
       </header>
 
       <main class="main-content">
@@ -58,19 +83,6 @@
             <p id="list-caption" class="section-heading__meta"></p>
           </div>
           <div id="item-list" class="item-list" aria-live="polite"></div>
-        </section>
-
-        <section aria-labelledby="backup-title" class="stack-section">
-          <div class="section-heading">
-            <h2 id="backup-title">Backup</h2>
-          </div>
-          <p class="backup-copy">Export or import your items as a CSV file.</p>
-          <div class="backup-actions">
-            <button class="button button--ghost" id="export-csv-button" type="button">Export CSV</button>
-            <button class="button button--ghost" id="import-csv-button" type="button">Import CSV</button>
-          </div>
-          <input id="import-csv-input" class="visually-hidden" type="file" accept=".csv,text/csv" />
-          <p id="backup-feedback" class="backup-feedback hidden" aria-live="polite"></p>
         </section>
       </main>
     </div>

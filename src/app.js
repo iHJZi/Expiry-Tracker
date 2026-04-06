@@ -16,6 +16,7 @@ const state = {
   items: loadItems(),
   filter: "all",
   countryFilter: "all",
+  backupMenuOpen: false,
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
@@ -28,6 +29,8 @@ const elements = {
   listCaption: document.getElementById("list-caption"),
   itemList: document.getElementById("item-list"),
   addButton: document.getElementById("add-button"),
+  backupMenuButton: document.getElementById("backup-menu-button"),
+  backupMenuPanel: document.getElementById("backup-menu-panel"),
   exportCsvButton: document.getElementById("export-csv-button"),
   importCsvButton: document.getElementById("import-csv-button"),
   importCsvInput: document.getElementById("import-csv-input"),
@@ -78,7 +81,22 @@ function saveAndRender() {
   render();
 }
 
+function setBackupMenuOpen(isOpen) {
+  state.backupMenuOpen = isOpen;
+  elements.backupMenuPanel.classList.toggle("hidden", !isOpen);
+  elements.backupMenuPanel.setAttribute("aria-hidden", String(!isOpen));
+  elements.backupMenuButton.setAttribute("aria-expanded", String(isOpen));
+}
+
 function setBackupFeedback(message, tone = "neutral") {
+  if (!message) {
+    elements.backupFeedback.textContent = "";
+    elements.backupFeedback.classList.add("hidden");
+    elements.backupFeedback.classList.remove("backup-feedback--success", "backup-feedback--error");
+    return;
+  }
+
+  setBackupMenuOpen(true);
   elements.backupFeedback.textContent = message;
   elements.backupFeedback.classList.remove("hidden", "backup-feedback--success", "backup-feedback--error");
   elements.backupFeedback.classList.toggle("backup-feedback--success", tone === "success");
@@ -159,6 +177,7 @@ function setBodySheetState() {
 }
 
 function showSheet(sheet) {
+  setBackupMenuOpen(false);
   sheet.classList.remove("hidden");
   sheet.setAttribute("aria-hidden", "false");
   setBodySheetState();
@@ -557,6 +576,9 @@ function handleDelete() {
 
 function registerEvents() {
   elements.addButton.addEventListener("click", () => openForm());
+  elements.backupMenuButton.addEventListener("click", () => {
+    setBackupMenuOpen(!state.backupMenuOpen);
+  });
   elements.exportCsvButton.addEventListener("click", handleExportCsv);
   elements.importCsvButton.addEventListener("click", () => {
     elements.importCsvInput.value = "";
@@ -644,8 +666,23 @@ function registerEvents() {
     });
   });
 
+  document.addEventListener("click", (event) => {
+    if (!state.backupMenuOpen) {
+      return;
+    }
+
+    if (!event.target.closest("[data-backup-menu]")) {
+      setBackupMenuOpen(false);
+    }
+  });
+
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") {
+      return;
+    }
+
+    if (state.backupMenuOpen) {
+      setBackupMenuOpen(false);
       return;
     }
 
