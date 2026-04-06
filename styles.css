@@ -673,6 +673,94 @@ button {
 }
 
 @media (max-width: 520px) {
+  #form-sheet .sheet__panel {
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  #form-sheet .sheet__header {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  #form-sheet .sheet__header h2 {
+    font-size: 1.4rem;
+  }
+
+  #form-sheet .icon-button {
+    padding: 8px 12px;
+  }
+
+  #form-sheet .item-form {
+    gap: 12px;
+  }
+
+  #form-sheet .field {
+    gap: 7px;
+  }
+
+  #form-sheet .field__label {
+    font-size: 0.88rem;
+  }
+
+  #form-sheet .field input:not([type="checkbox"]),
+  #form-sheet .field textarea {
+    padding: 12px 13px;
+    border-radius: 14px;
+  }
+
+  #form-sheet .field textarea {
+    min-height: 88px;
+  }
+
+  #form-sheet .field__toggle {
+    min-height: 46px;
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+
+  #form-sheet .field__toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  #form-sheet .status-preview {
+    min-height: 0;
+    padding: 11px 12px;
+    border-radius: 16px;
+  }
+
+  #form-sheet .status-preview__title {
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+  }
+
+  #form-sheet .status-preview__content {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+
+  #form-sheet .status-badge,
+  #form-sheet .status-note {
+    padding: 6px 9px;
+    font-size: 0.78rem;
+  }
+
+  #form-sheet .form-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 2px;
+  }
+
+  #form-sheet .button {
+    min-height: 46px;
+    padding: 11px 14px;
+    border-radius: 14px;
+  }
+
   .item-card__body {
     gap: 12px;
   }
@@ -690,7 +778,6 @@ button {
     grid-column: auto;
   }
 
-  .status-preview__content,
   .update-toast {
     flex-direction: column;
     align-items: stretch;
