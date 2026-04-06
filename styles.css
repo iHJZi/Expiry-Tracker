@@ -383,7 +383,7 @@ button {
   position: fixed;
   right: 18px;
   bottom: calc(18px + env(safe-area-inset-bottom));
-  z-index: 12;
+  z-index: 19;
   width: 60px;
   height: 60px;
   border: 0;
@@ -393,6 +393,7 @@ button {
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.36);
   font-size: 2rem;
   line-height: 1;
+  touch-action: manipulation;
 }
 
 .update-toast {
@@ -437,6 +438,12 @@ button {
 
 .sheet.hidden {
   display: none;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.sheet[aria-hidden="true"] {
+  pointer-events: none;
 }
 
 .sheet__scrim {
