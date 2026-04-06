@@ -4,7 +4,6 @@ import {
   formatDateTime,
   formatStatusLabel,
   getItemMeta,
-  getSecondaryText,
   getStatusCounts,
   matchesFilter,
   sortItemsByUrgency,
@@ -229,7 +228,6 @@ function renderList() {
           <div class="item-card__body">
             <div class="item-card__content">
               <p class="item-card__title">${escapeHtml(item.title)}</p>
-              <p class="item-card__meta">${escapeHtml(getSecondaryText(item))}</p>
               <span class="item-card__helper">${escapeHtml(meta.helperText)}</span>
             </div>
             <div class="item-card__status">
