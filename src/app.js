@@ -148,19 +148,7 @@ function renderEmptyState() {
   const isFiltering = state.filter !== "all";
 
   elements.listCaption.textContent = isFiltering ? "No items in this filter" : "No items yet";
-  elements.itemList.innerHTML = `
-    <section class="empty-state">
-      <h3>${isFiltering ? "No matches here" : "No items yet"}</h3>
-      <p>
-        ${isFiltering
-          ? "Try another filter to review the rest of your expiry list."
-          : "Add your first item manually to start tracking important expiry dates."}
-      </p>
-      <div class="empty-state__actions">
-        <button class="button button--primary" type="button" data-empty-action="add">Add item</button>
-      </div>
-    </section>
-  `;
+  elements.itemList.innerHTML = "";
 }
 
 function renderList() {
