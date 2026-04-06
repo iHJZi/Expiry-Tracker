@@ -28,6 +28,18 @@
   display: none !important;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html,
 body {
   min-height: 100%;
@@ -483,22 +495,32 @@ button {
   position: sticky;
   top: 0;
   z-index: 2;
-  margin-bottom: 20px;
-  padding: 4px 0 16px;
-  background: linear-gradient(180deg, rgba(13, 17, 16, 0.98), rgba(13, 17, 16, 0.92) 78%, rgba(13, 17, 16, 0));
-  backdrop-filter: blur(10px);
-}
-
-#form-sheet .sheet__header h2 {
-  font-size: clamp(1.9rem, 7vw, 2.4rem);
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 2px 0 12px;
+  background: rgba(13, 17, 16, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: none;
 }
 
 #form-sheet .icon-button {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.045),
-    0 10px 26px rgba(0, 0, 0, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #f1f3ef;
+}
+
+#form-sheet .icon-button__chevron {
+  width: 11px;
+  height: 20px;
+  display: block;
 }
 
 #form-sheet .item-form {
@@ -825,16 +847,13 @@ button {
   }
 
   #form-sheet .sheet__header {
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  #form-sheet .sheet__header h2 {
-    font-size: 1.28rem;
+    margin-bottom: 8px;
+    padding-bottom: 10px;
   }
 
   #form-sheet .icon-button {
-    padding: 7px 10px;
+    width: 38px;
+    height: 38px;
   }
 
   #form-sheet .item-form {
