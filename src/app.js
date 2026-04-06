@@ -14,6 +14,7 @@ import { buildItemPayload, loadItems, saveItems } from "./storage.js";
 const state = {
   items: loadItems(),
   filter: "all",
+  countryFilter: "all",
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
@@ -27,6 +28,7 @@ const elements = {
   itemList: document.getElementById("item-list"),
   addButton: document.getElementById("add-button"),
   filterButtons: [...document.querySelectorAll("[data-filter]")],
+  countryFilterRow: document.getElementById("country-filter-row"),
   formSheet: document.getElementById("form-sheet"),
   detailsSheet: document.getElementById("details-sheet"),
   confirmSheet: document.getElementById("confirm-sheet"),
@@ -113,6 +115,22 @@ function getItemById(itemId) {
   return state.items.find((item) => item.id === itemId) || null;
 }
 
+function getAvailableCountries(items) {
+  return [...new Set(
+    items
+      .map((item) => item.country)
+      .filter(Boolean),
+  )].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
+}
+
+function matchesCountryFilter(item) {
+  if (state.countryFilter === "all") {
+    return true;
+  }
+
+  return item.country === state.countryFilter;
+}
+
 function renderStatusAccent(meta) {
   if (!meta.config) {
     return '<span class="status-note">Date required</span>';
@@ -146,10 +164,35 @@ function renderFilters() {
   elements.filterButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.filter === state.filter);
   });
+
+  const countries = getAvailableCountries(state.items);
+
+  if (state.countryFilter !== "all" && !countries.includes(state.countryFilter)) {
+    state.countryFilter = "all";
+  }
+
+  elements.countryFilterRow.innerHTML = [
+    `
+      <button class="filter-pill ${state.countryFilter === "all" ? "is-active" : ""}" data-country-filter="all" type="button">
+        All countries
+      </button>
+    `,
+    ...countries.map((country) => `
+      <button
+        class="filter-pill ${state.countryFilter === country ? "is-active" : ""}"
+        data-country-filter="${escapeHtml(country)}"
+        type="button"
+      >
+        ${escapeHtml(country)}
+      </button>
+    `),
+  ].join("");
 }
 
 function getFilteredItems() {
-  return sortItemsByUrgency(state.items).filter((item) => matchesFilter(item, state.filter));
+  return sortItemsByUrgency(state.items).filter((item) =>
+    matchesFilter(item, state.filter) && matchesCountryFilter(item),
+  );
 }
 
 function renderEmptyState() {
@@ -430,6 +473,17 @@ function registerEvents() {
       state.filter = button.dataset.filter;
       render();
     });
+  });
+
+  elements.countryFilterRow.addEventListener("click", (event) => {
+    const countryButton = event.target.closest("[data-country-filter]");
+
+    if (!countryButton) {
+      return;
+    }
+
+    state.countryFilter = countryButton.dataset.countryFilter;
+    render();
   });
 
   elements.itemList.addEventListener("click", (event) => {

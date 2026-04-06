@@ -1,6 +1,6 @@
 {
-  "name": "Expiry Tracker",
-  "short_name": "Expiry Tracker",
+  "name": "Documents Tracker",
+  "short_name": "Documents Tracker",
   "description": "Track important document, permit, insurance, card, and subscription expiry dates.",
   "id": "./",
   "start_url": "./",
