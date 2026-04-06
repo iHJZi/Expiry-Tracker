@@ -105,9 +105,12 @@
             <option value="Other"></option>
           </datalist>
 
-          <label class="field">
+          <label class="field field--date">
             <span class="field__label">Expiry date</span>
-            <input id="expiry-date-input" name="expiryDate" type="date" required />
+            <span class="field__date-shell">
+              <span id="expiry-date-display" class="field__date-display is-placeholder">Select date</span>
+              <input id="expiry-date-input" name="expiryDate" type="date" required />
+            </span>
           </label>
 
           <label class="field field--toggle">

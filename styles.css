@@ -549,6 +549,43 @@ button {
   min-width: 0;
 }
 
+#form-sheet .field__date-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  padding: 14px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.045));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.038),
+    0 1px 0 rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+#form-sheet .field__date-display {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  line-height: 1.2;
+  color: var(--text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+#form-sheet .field__date-display.is-placeholder {
+  color: var(--muted);
+}
+
 #form-sheet .field input:not([type="checkbox"]),
 #form-sheet .field textarea {
   display: block;
@@ -575,10 +612,21 @@ button {
 }
 
 #form-sheet .field input[type="date"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
   color-scheme: dark;
-  color: var(--text);
-  min-height: 50px;
-  line-height: 1.2;
+  color: transparent;
+  opacity: 0;
+  cursor: pointer;
 }
 
 #form-sheet .field input[type="date"]::-webkit-date-and-time-value {
@@ -617,6 +665,14 @@ button {
     inset 0 1px 0 rgba(255, 255, 255, 0.042);
 }
 
+#form-sheet .field__date-shell:focus-within {
+  border-color: rgba(236, 240, 235, 0.28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.052));
+  box-shadow:
+    0 0 0 3px rgba(236, 240, 235, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.042);
+}
+
 #form-sheet .field__toggle {
   border-color: rgba(255, 255, 255, 0.17);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
@@ -640,6 +696,20 @@ button {
   border-color: rgba(255, 255, 255, 0.1);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.022));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+#form-sheet .field.is-disabled .field__date-shell {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.022));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+#form-sheet .field.is-disabled .field__date-display {
+  color: var(--muted);
+}
+
+#form-sheet .field.is-disabled input[type="date"] {
+  cursor: not-allowed;
 }
 
 #form-sheet .status-preview {
@@ -924,6 +994,12 @@ button {
 
   #form-sheet .field input:not([type="checkbox"]),
   #form-sheet .field textarea {
+    padding: 10px 12px;
+    border-radius: 13px;
+  }
+
+  #form-sheet .field__date-shell {
+    min-height: 44px;
     padding: 10px 12px;
     border-radius: 13px;
   }

@@ -38,6 +38,7 @@ const elements = {
   categoryInput: document.getElementById("category-input"),
   expiryDateField: document.getElementById("expiry-date-input").closest(".field"),
   expiryDateInput: document.getElementById("expiry-date-input"),
+  expiryDateDisplay: document.getElementById("expiry-date-display"),
   inactiveInput: document.getElementById("inactive-input"),
   noteInput: document.getElementById("note-input"),
   formStatusPreview: document.getElementById("form-status-preview"),
@@ -139,6 +140,12 @@ function renderStatusAccent(meta) {
   return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusLabel(meta.status))}</span>`;
 }
 
+function syncExpiryDateDisplay() {
+  const hasExpiryDate = Boolean(elements.expiryDateInput.value);
+  elements.expiryDateDisplay.textContent = hasExpiryDate ? formatDate(elements.expiryDateInput.value) : "Select date";
+  elements.expiryDateDisplay.classList.toggle("is-placeholder", !hasExpiryDate);
+}
+
 function syncExpiryDateRequirement() {
   const isInactive = elements.inactiveInput.checked;
   const stashedValue = elements.expiryDateInput.dataset.stashedValue || "";
@@ -160,6 +167,7 @@ function syncExpiryDateRequirement() {
   elements.expiryDateField.classList.toggle("is-disabled", isInactive);
   elements.expiryDateInput.required = !isInactive;
   elements.expiryDateInput.setCustomValidity("");
+  syncExpiryDateDisplay();
 }
 
 function renderSummary() {
@@ -493,7 +501,10 @@ function registerEvents() {
   elements.form.addEventListener("submit", handleFormSubmit);
 
   ["input", "change"].forEach((eventName) => {
-    elements.expiryDateInput.addEventListener(eventName, renderFormStatusPreview);
+    elements.expiryDateInput.addEventListener(eventName, () => {
+      syncExpiryDateDisplay();
+      renderFormStatusPreview();
+    });
   });
 
   elements.inactiveInput.addEventListener("change", () => {
