@@ -192,73 +192,30 @@ button {
   background: var(--inactive);
 }
 
-.filter-control {
-  position: relative;
+.filter-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
 }
 
-.filter-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 16px;
+.filter-row::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-pill {
+  padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--muted-strong);
-  text-align: left;
+  white-space: nowrap;
 }
 
-.filter-toggle__text {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.filter-toggle__value {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.filter-toggle__chevron {
-  flex-shrink: 0;
-  color: var(--muted);
-  transition: transform 180ms ease;
-}
-
-.filter-control.is-open .filter-toggle__chevron {
-  transform: rotate(180deg);
-}
-
-.filter-menu {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04), transparent 40%),
-    linear-gradient(180deg, rgba(25, 31, 29, 0.98), rgba(18, 23, 21, 0.98));
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
-}
-
-.filter-option {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background: transparent;
-  color: var(--muted-strong);
-  text-align: left;
-}
-
-.filter-option.is-active {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.08);
+.filter-pill.is-active {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.09);
   color: var(--text);
 }
 
@@ -284,8 +241,7 @@ button {
 }
 
 .item-card:focus-visible,
-.filter-toggle:focus-visible,
-.filter-option:focus-visible,
+.filter-pill:focus-visible,
 .button:focus-visible,
 .icon-button:focus-visible,
 .fab:focus-visible,
