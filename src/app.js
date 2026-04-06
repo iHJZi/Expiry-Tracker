@@ -231,7 +231,6 @@ function renderList() {
               <span class="item-card__helper">${escapeHtml(meta.helperText)}</span>
             </div>
             <div class="item-card__status">
-              <span class="item-card__date">${escapeHtml(formatDate(item.expiryDate))}</span>
               ${renderStatusAccent(meta)}
             </div>
           </div>
