@@ -529,6 +529,7 @@ button {
 
 #form-sheet .item-form {
   width: min(100%, 680px);
+  min-width: 0;
   margin: 0 auto;
   padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -541,6 +542,11 @@ button {
 
 #form-sheet .field__label {
   color: #d4dad5;
+}
+
+#form-sheet .field {
+  width: 100%;
+  min-width: 0;
 }
 
 #form-sheet .field input:not([type="checkbox"]),
