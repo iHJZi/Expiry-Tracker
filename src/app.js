@@ -32,7 +32,6 @@ const elements = {
   detailsSheet: document.getElementById("details-sheet"),
   confirmSheet: document.getElementById("confirm-sheet"),
   form: document.getElementById("item-form"),
-  formKicker: document.getElementById("form-kicker"),
   formTitle: document.getElementById("form-title"),
   titleInput: document.getElementById("title-input"),
   countryInput: document.getElementById("country-input"),
@@ -347,7 +346,6 @@ function openForm(itemId = null, options = {}) {
   state.returnToDetailsOnFormClose = Boolean(options.returnToDetails && itemId);
   const item = getItemById(itemId);
 
-  elements.formKicker.textContent = item ? "Edit item" : "Add item";
   elements.formTitle.textContent = item ? "Update item" : "New item";
   elements.titleInput.value = item?.title || "";
   elements.countryInput.value = item?.country || "";
