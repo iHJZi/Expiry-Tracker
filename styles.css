@@ -674,91 +674,96 @@ button {
 
 @media (max-width: 520px) {
   #form-sheet .sheet__panel {
-    padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
   }
 
   #form-sheet .sheet__header {
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
 
   #form-sheet .sheet__header h2 {
-    font-size: 1.4rem;
+    font-size: 1.28rem;
   }
 
   #form-sheet .icon-button {
-    padding: 8px 12px;
+    padding: 7px 10px;
   }
 
   #form-sheet .item-form {
-    gap: 12px;
+    gap: 10px;
   }
 
   #form-sheet .field {
-    gap: 7px;
+    gap: 5px;
   }
 
   #form-sheet .field__label {
-    font-size: 0.88rem;
+    font-size: 0.84rem;
   }
 
   #form-sheet .field input:not([type="checkbox"]),
   #form-sheet .field textarea {
-    padding: 12px 13px;
-    border-radius: 14px;
+    padding: 10px 12px;
+    border-radius: 13px;
   }
 
   #form-sheet .field textarea {
-    min-height: 88px;
+    min-height: 72px;
   }
 
   #form-sheet .field__toggle {
-    min-height: 46px;
-    padding: 10px 12px;
-    gap: 10px;
-    border-radius: 14px;
+    min-height: 42px;
+    padding: 8px 11px;
+    gap: 8px;
+    border-radius: 13px;
   }
 
   #form-sheet .field__toggle input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
+  }
+
+  #form-sheet .field__toggle-text {
+    font-size: 0.9rem;
   }
 
   #form-sheet .status-preview {
     min-height: 0;
-    padding: 11px 12px;
-    border-radius: 16px;
+    padding: 9px 10px;
+    border-radius: 14px;
   }
 
   #form-sheet .status-preview__title {
-    margin-bottom: 6px;
-    font-size: 0.78rem;
+    margin-bottom: 4px;
+    font-size: 0.72rem;
   }
 
   #form-sheet .status-preview__content {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
+    gap: 6px;
+    font-size: 0.84rem;
+    line-height: 1.25;
   }
 
   #form-sheet .status-badge,
   #form-sheet .status-note {
-    padding: 6px 9px;
-    font-size: 0.78rem;
+    padding: 5px 8px;
+    font-size: 0.74rem;
   }
 
   #form-sheet .form-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 2px;
+    gap: 8px;
+    margin-top: 0;
   }
 
   #form-sheet .button {
-    min-height: 46px;
-    padding: 11px 14px;
-    border-radius: 14px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 13px;
   }
 
   .item-card__body {
