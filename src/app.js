@@ -362,6 +362,7 @@ function openForm(itemId = null, options = {}) {
   hideSheet(elements.detailsSheet);
   hideSheet(elements.confirmSheet);
   showSheet(elements.formSheet);
+  elements.formSheet.scrollTop = 0;
   requestAnimationFrame(() => elements.titleInput.focus());
 }
 
@@ -376,6 +377,7 @@ function closeForm(options = {}) {
   syncExpiryDateRequirement();
   renderFormStatusPreview();
   hideSheet(elements.formSheet);
+  elements.formSheet.scrollTop = 0;
 
   if (selectedItem) {
     renderDetails();
@@ -538,10 +540,6 @@ function registerEvents() {
   document.querySelectorAll("[data-close-sheet]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = button.getAttribute("data-close-sheet");
-
-      if (target === "form-sheet") {
-        closeForm();
-      }
 
       if (target === "details-sheet") {
         closeDetails();

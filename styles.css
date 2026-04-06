@@ -455,6 +455,44 @@ button {
   max-height: none;
 }
 
+#form-sheet {
+  align-items: stretch;
+  padding: 0;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at top left, rgba(87, 201, 125, 0.14), transparent 32%),
+    radial-gradient(circle at top right, rgba(237, 193, 92, 0.12), transparent 30%),
+    linear-gradient(180deg, #101614 0%, #0d1110 48%, #090c0b 100%);
+}
+
+#form-sheet .sheet__panel {
+  width: min(100%, var(--max-width));
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  max-height: none;
+  overflow: visible;
+  animation: none;
+}
+
+#form-sheet .sheet__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-bottom: 20px;
+  padding: 4px 0 16px;
+  background: linear-gradient(180deg, rgba(13, 17, 16, 0.98), rgba(13, 17, 16, 0.92) 78%, rgba(13, 17, 16, 0));
+  backdrop-filter: blur(10px);
+}
+
+#form-sheet .sheet__header h2 {
+  font-size: clamp(1.9rem, 7vw, 2.4rem);
+}
+
 .sheet__header,
 .sheet__header--compact {
   display: flex;
