@@ -1,3 +1,5 @@
+import { normalizeDateInput } from "./utils.js";
+
 const STORAGE_KEY = "expiry-tracker-items-v1";
 
 function normalizeString(value) {
@@ -12,7 +14,7 @@ function normalizeItem(raw) {
     title: normalizeString(raw?.title),
     country: normalizeString(raw?.country),
     category: normalizeString(raw?.category),
-    expiryDate: normalizeString(raw?.expiryDate),
+    expiryDate: normalizeDateInput(normalizeString(raw?.expiryDate)),
     note: normalizeString(raw?.note),
     isActive: raw?.isActive !== false,
     createdAt: normalizeString(raw?.createdAt) || now,
@@ -42,7 +44,11 @@ export function loadItems() {
 }
 
 export function saveItems(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  const normalizedItems = Array.isArray(items)
+    ? items.map(normalizeItem).filter((item) => item.title)
+    : [];
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedItems));
 }
 
 export function buildItemPayload(formValues, existingItem) {
@@ -53,7 +59,7 @@ export function buildItemPayload(formValues, existingItem) {
     title: normalizeString(formValues.title),
     country: normalizeString(formValues.country),
     category: normalizeString(formValues.category),
-    expiryDate: normalizeString(formValues.expiryDate),
+    expiryDate: normalizeDateInput(normalizeString(formValues.expiryDate)),
     note: normalizeString(formValues.note),
     isActive: Boolean(formValues.isActive),
     createdAt: existingItem?.createdAt || timestamp,

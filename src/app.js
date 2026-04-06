@@ -4,7 +4,6 @@ import {
   formatDateTime,
   formatStatusWithIcon,
   getItemMeta,
-  getRelativeDateString,
   getSecondaryText,
   getStatusCounts,
   matchesFilter,
@@ -18,6 +17,7 @@ const state = {
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
+  returnToDetailsOnFormClose: false,
 };
 
 const elements = {
@@ -48,7 +48,12 @@ const elements = {
   confirmMessage: document.getElementById("confirm-message"),
   cancelDeleteButton: document.getElementById("cancel-delete-button"),
   confirmDeleteButton: document.getElementById("confirm-delete-button"),
+  updateToast: document.getElementById("update-toast"),
+  updateReloadButton: document.getElementById("update-reload-button"),
 };
+
+let waitingServiceWorkerRegistration = null;
+let isReloadingForUpdate = false;
 
 function escapeHtml(value) {
   return value
@@ -88,6 +93,20 @@ function closeAllSheets() {
   hideSheet(elements.formSheet);
   hideSheet(elements.detailsSheet);
   hideSheet(elements.confirmSheet);
+}
+
+function showUpdatePrompt(registration) {
+  if (!registration?.waiting) {
+    return;
+  }
+
+  waitingServiceWorkerRegistration = registration;
+  elements.updateToast.classList.remove("hidden");
+}
+
+function hideUpdatePrompt() {
+  waitingServiceWorkerRegistration = null;
+  elements.updateToast.classList.add("hidden");
 }
 
 function getItemById(itemId) {
@@ -131,17 +150,14 @@ function renderEmptyState() {
   elements.listCaption.textContent = isFiltering ? "No items in this filter" : "No items yet";
   elements.itemList.innerHTML = `
     <section class="empty-state">
-      <h3>${isFiltering ? "No matches here" : "Add your first item"}</h3>
+      <h3>${isFiltering ? "No matches here" : "No items yet"}</h3>
       <p>
         ${isFiltering
           ? "Try another filter to review the rest of your expiry list."
-          : "Keep passports, permits, insurance, and subscriptions in one calm list."}
+          : "Add your first item manually to start tracking important expiry dates."}
       </p>
       <div class="empty-state__actions">
         <button class="button button--primary" type="button" data-empty-action="add">Add item</button>
-        ${state.items.length === 0
-          ? '<button class="button button--ghost" type="button" data-empty-action="demo">Load demo items</button>'
-          : ""}
       </div>
     </section>
   `;
@@ -251,8 +267,9 @@ function render() {
   renderFormStatusPreview();
 }
 
-function openForm(itemId = null) {
+function openForm(itemId = null, options = {}) {
   state.editingItemId = itemId;
+  state.returnToDetailsOnFormClose = Boolean(options.returnToDetails && itemId);
   const item = getItemById(itemId);
 
   elements.formKicker.textContent = item ? "Edit item" : "Add item";
@@ -271,12 +288,21 @@ function openForm(itemId = null) {
   requestAnimationFrame(() => elements.titleInput.focus());
 }
 
-function closeForm() {
+function closeForm(options = {}) {
+  const restoreDetails = options.restoreDetails ?? state.returnToDetailsOnFormClose;
+  const selectedItem = restoreDetails ? getItemById(state.selectedItemId) : null;
+
   state.editingItemId = null;
+  state.returnToDetailsOnFormClose = false;
   elements.form.reset();
   elements.activeInput.checked = true;
   renderFormStatusPreview();
   hideSheet(elements.formSheet);
+
+  if (selectedItem) {
+    renderDetails();
+    showSheet(elements.detailsSheet);
+  }
 }
 
 function openDetails(itemId) {
@@ -306,57 +332,6 @@ function openDeleteConfirmation(itemId) {
 function closeDeleteConfirmation() {
   state.deleteTargetId = null;
   hideSheet(elements.confirmSheet);
-}
-
-function addDemoItems() {
-  state.items = [
-    {
-      id: crypto.randomUUID(),
-      title: "German Residence Permit",
-      country: "Germany",
-      category: "Residence Permit",
-      expiryDate: getRelativeDateString(18),
-      note: "Book renewal appointment before summer.",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Saudi Passport",
-      country: "Saudi Arabia",
-      category: "Passport",
-      expiryDate: getRelativeDateString(-6),
-      note: "",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Health Insurance Card",
-      country: "Germany",
-      category: "Health Insurance",
-      expiryDate: getRelativeDateString(230),
-      note: "",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Old SIM Contract",
-      country: "",
-      category: "SIM / Contract",
-      expiryDate: "",
-      note: "Kept for reference only.",
-      isActive: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ];
-
-  saveAndRender();
 }
 
 function handleFormSubmit(event) {
@@ -391,8 +366,9 @@ function handleFormSubmit(event) {
     state.items = [...state.items, nextItem];
   }
 
+  const restoreDetails = state.returnToDetailsOnFormClose;
   saveAndRender();
-  closeForm();
+  closeForm({ restoreDetails });
 }
 
 function handleDelete() {
@@ -412,10 +388,22 @@ function registerEvents() {
   elements.closeFormButton.addEventListener("click", closeForm);
   elements.cancelFormButton.addEventListener("click", closeForm);
   elements.closeDetailsButton.addEventListener("click", closeDetails);
-  elements.detailsEditButton.addEventListener("click", () => openForm(state.selectedItemId));
+  elements.detailsEditButton.addEventListener("click", () =>
+    openForm(state.selectedItemId, { returnToDetails: true }),
+  );
   elements.detailsDeleteButton.addEventListener("click", () => openDeleteConfirmation(state.selectedItemId));
   elements.cancelDeleteButton.addEventListener("click", closeDeleteConfirmation);
   elements.confirmDeleteButton.addEventListener("click", handleDelete);
+  elements.updateReloadButton.addEventListener("click", () => {
+    const waitingWorker = waitingServiceWorkerRegistration?.waiting;
+
+    if (!waitingWorker) {
+      hideUpdatePrompt();
+      return;
+    }
+
+    waitingWorker.postMessage({ type: "SKIP_WAITING" });
+  });
   elements.form.addEventListener("submit", handleFormSubmit);
 
   ["input", "change"].forEach((eventName) => {
@@ -443,10 +431,6 @@ function registerEvents() {
 
     if (emptyAction?.dataset.emptyAction === "add") {
       openForm();
-    }
-
-    if (emptyAction?.dataset.emptyAction === "demo") {
-      addDemoItems();
     }
   });
 
@@ -495,9 +479,54 @@ function registerServiceWorker() {
   }
 
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch((error) => {
-      console.error("Service worker registration failed", error);
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (isReloadingForUpdate) {
+        return;
+      }
+
+      isReloadingForUpdate = true;
+      window.location.reload();
     });
+
+    navigator.serviceWorker.register("./sw.js")
+      .then((registration) => {
+        const monitorForUpdate = (targetRegistration) => {
+          if (targetRegistration.waiting && navigator.serviceWorker.controller) {
+            showUpdatePrompt(targetRegistration);
+          }
+        };
+
+        monitorForUpdate(registration);
+
+        registration.addEventListener("updatefound", () => {
+          const nextWorker = registration.installing;
+
+          if (!nextWorker) {
+            return;
+          }
+
+          nextWorker.addEventListener("statechange", () => {
+            if (nextWorker.state === "installed" && navigator.serviceWorker.controller) {
+              showUpdatePrompt(registration);
+            }
+          });
+        });
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState !== "visible") {
+            return;
+          }
+
+          registration.update()
+            .then(() => monitorForUpdate(registration))
+            .catch((error) => {
+              console.error("Service worker update check failed", error);
+            });
+        });
+      })
+      .catch((error) => {
+        console.error("Service worker registration failed", error);
+      });
   });
 }
 

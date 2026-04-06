@@ -6,6 +6,65 @@ export const STATUS_CONFIG = {
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DATE_INPUT_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+function padDatePart(value) {
+  return String(value).padStart(2, "0");
+}
+
+function getLocalDateParts(date) {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
+}
+
+function parseDateParts(dateString) {
+  if (typeof dateString !== "string") {
+    return null;
+  }
+
+  const normalizedValue = dateString.trim();
+  const match = DATE_INPUT_PATTERN.exec(normalizedValue);
+
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(year, month - 1, day);
+  parsed.setHours(0, 0, 0, 0);
+
+  const parsedParts = getLocalDateParts(parsed);
+
+  if (
+    parsedParts.year !== year
+    || parsedParts.month !== month
+    || parsedParts.day !== day
+  ) {
+    return null;
+  }
+
+  return { year, month, day };
+}
+
+export function formatLocalDateInput(date) {
+  const { year, month, day } = getLocalDateParts(date);
+  return `${year}-${padDatePart(month)}-${padDatePart(day)}`;
+}
+
+export function normalizeDateInput(dateString) {
+  const parts = parseDateParts(dateString);
+
+  if (!parts) {
+    return "";
+  }
+
+  return `${parts.year}-${padDatePart(parts.month)}-${padDatePart(parts.day)}`;
+}
 
 export function getTodayAtMidnight() {
   const today = new Date();
@@ -14,12 +73,16 @@ export function getTodayAtMidnight() {
 }
 
 export function parseDate(dateString) {
-  if (!dateString) {
+  const normalizedDate = normalizeDateInput(dateString);
+
+  if (!normalizedDate) {
     return null;
   }
 
-  const parsed = new Date(`${dateString}T00:00:00`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+  const [year, month, day] = normalizedDate.split("-").map(Number);
+  const parsed = new Date(year, month - 1, day);
+  parsed.setHours(0, 0, 0, 0);
+  return parsed;
 }
 
 export function formatDate(dateString) {
@@ -63,7 +126,14 @@ export function getDaysLeft(expiryDate) {
     return null;
   }
 
-  return Math.round((parsed.getTime() - getTodayAtMidnight().getTime()) / DAY_MS);
+  const today = getTodayAtMidnight();
+
+  return Math.round(
+    (
+      Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
+      - Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
+    ) / DAY_MS,
+  );
 }
 
 export function getStatus(item) {
@@ -199,10 +269,4 @@ export function getSecondaryText(item) {
 export function formatStatusWithIcon(status) {
   const config = STATUS_CONFIG[status];
   return `${config.icon} ${config.label}`;
-}
-
-export function getRelativeDateString(offsetDays) {
-  const date = getTodayAtMidnight();
-  date.setDate(date.getDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
 }

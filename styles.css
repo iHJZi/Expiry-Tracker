@@ -24,6 +24,10 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -350,6 +354,38 @@ button {
   line-height: 1;
 }
 
+.update-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  z-index: 18;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(87, 201, 125, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(23, 29, 27, 0.98), rgba(18, 23, 21, 0.98));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.update-toast__text {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.45;
+}
+
+.update-toast__button {
+  min-height: 44px;
+  padding-inline: 18px;
+  flex-shrink: 0;
+}
+
 .sheet {
   position: fixed;
   inset: 0;
@@ -590,6 +626,23 @@ button {
   }
 }
 
+@media (max-width: 520px) {
+  .details-card__grid,
+  .form-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .details-card__block--full {
+    grid-column: auto;
+  }
+
+  .status-preview__content,
+  .update-toast {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 @media (min-width: 640px) {
   .app-shell {
     padding-left: 22px;
@@ -608,6 +661,13 @@ button {
   .sheet__panel {
     border-radius: 28px;
     max-height: min(780px, 92vh);
+  }
+
+  .update-toast {
+    width: min(420px, calc(100% - 32px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 
   .fab {
