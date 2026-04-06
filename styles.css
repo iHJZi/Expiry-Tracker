@@ -478,10 +478,7 @@ button {
   align-items: stretch;
   padding: 0;
   overflow-y: auto;
-  background:
-    radial-gradient(circle at top left, rgba(87, 201, 125, 0.14), transparent 32%),
-    radial-gradient(circle at top right, rgba(237, 193, 92, 0.12), transparent 30%),
-    linear-gradient(180deg, #101614 0%, #0d1110 48%, #090c0b 100%);
+  background: linear-gradient(180deg, #101312 0%, #0d100f 52%, #090b0a 100%);
 }
 
 #form-sheet .sheet__panel {
@@ -536,9 +533,7 @@ button {
   padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(237, 193, 92, 0.06), transparent 34%),
-    linear-gradient(180deg, rgba(22, 28, 26, 0.9), rgba(15, 20, 18, 0.92));
+  background: linear-gradient(180deg, rgba(23, 27, 26, 0.94), rgba(14, 18, 17, 0.96));
   box-shadow:
     0 28px 72px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -559,6 +554,34 @@ button {
     border-color 160ms ease,
     background-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+#form-sheet .field input[type="date"] {
+  color-scheme: dark;
+  color: var(--text);
+}
+
+#form-sheet .field input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+#form-sheet .field input[type="date"]::-webkit-datetime-edit,
+#form-sheet .field input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+#form-sheet .field input[type="date"]::-webkit-datetime-edit-text,
+#form-sheet .field input[type="date"]::-webkit-datetime-edit-month-field,
+#form-sheet .field input[type="date"]::-webkit-datetime-edit-day-field,
+#form-sheet .field input[type="date"]::-webkit-datetime-edit-year-field {
+  color: inherit;
+  padding: 0;
+}
+
+#form-sheet .field input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.72;
+  filter: invert(93%) sepia(7%) saturate(175%) hue-rotate(23deg) brightness(95%) contrast(88%);
+}
+
+#form-sheet .field input[type="date"]:disabled::-webkit-calendar-picker-indicator {
+  opacity: 0.32;
 }
 
 #form-sheet .field input:not([type="checkbox"]):focus,
@@ -597,9 +620,7 @@ button {
 
 #form-sheet .status-preview {
   border-color: rgba(255, 255, 255, 0.11);
-  background:
-    radial-gradient(circle at top right, rgba(87, 201, 125, 0.07), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.024));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.024));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.026),
     0 1px 0 rgba(0, 0, 0, 0.12);
