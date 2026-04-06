@@ -226,14 +226,16 @@ function renderList() {
 
       return `
         <button class="item-card" type="button" data-item-id="${item.id}">
-          <div class="item-card__top">
-            ${renderStatusAccent(meta)}
-            <span class="item-card__date">${escapeHtml(formatDate(item.expiryDate))}</span>
-          </div>
-          <p class="item-card__title">${escapeHtml(item.title)}</p>
-          <p class="item-card__meta">${escapeHtml(getSecondaryText(item))}</p>
-          <div class="item-card__footer">
-            <span class="item-card__helper">${escapeHtml(meta.helperText)}</span>
+          <div class="item-card__body">
+            <div class="item-card__content">
+              <p class="item-card__title">${escapeHtml(item.title)}</p>
+              <p class="item-card__meta">${escapeHtml(getSecondaryText(item))}</p>
+              <span class="item-card__helper">${escapeHtml(meta.helperText)}</span>
+            </div>
+            <div class="item-card__status">
+              <span class="item-card__date">${escapeHtml(formatDate(item.expiryDate))}</span>
+              ${renderStatusAccent(meta)}
+            </div>
           </div>
         </button>
       `;
