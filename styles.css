@@ -545,6 +545,12 @@ button {
 
 #form-sheet .field input:not([type="checkbox"]),
 #form-sheet .field textarea {
+  display: block;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  inline-size: 100%;
   border-color: rgba(255, 255, 255, 0.17);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.045));
   box-shadow:
