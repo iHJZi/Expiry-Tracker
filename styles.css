@@ -513,9 +513,11 @@ button {
 }
 
 .field__toggle {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  width: 100%;
   gap: 12px;
+  flex-wrap: nowrap;
   min-height: 52px;
   padding: 14px 15px;
   border: 1px solid var(--line);
@@ -532,7 +534,20 @@ button {
 }
 
 .field__toggle-text {
+  flex: 1;
   line-height: 1.2;
+  white-space: nowrap;
+}
+
+.field.is-disabled .field__label {
+  color: var(--muted);
+}
+
+.field.is-disabled input:not([type="checkbox"]) {
+  opacity: 0.55;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: not-allowed;
 }
 
 .status-preview {

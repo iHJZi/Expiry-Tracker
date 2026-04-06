@@ -37,6 +37,7 @@ const elements = {
   titleInput: document.getElementById("title-input"),
   countryInput: document.getElementById("country-input"),
   categoryInput: document.getElementById("category-input"),
+  expiryDateField: document.getElementById("expiry-date-input").closest(".field"),
   expiryDateInput: document.getElementById("expiry-date-input"),
   inactiveInput: document.getElementById("inactive-input"),
   noteInput: document.getElementById("note-input"),
@@ -141,6 +142,23 @@ function renderStatusAccent(meta) {
 
 function syncExpiryDateRequirement() {
   const isInactive = elements.inactiveInput.checked;
+  const stashedValue = elements.expiryDateInput.dataset.stashedValue || "";
+
+  if (isInactive) {
+    if (elements.expiryDateInput.value) {
+      elements.expiryDateInput.dataset.stashedValue = elements.expiryDateInput.value;
+    } else if (!stashedValue) {
+      delete elements.expiryDateInput.dataset.stashedValue;
+    }
+
+    elements.expiryDateInput.value = "";
+  } else if (!elements.expiryDateInput.value && stashedValue) {
+    elements.expiryDateInput.value = stashedValue;
+    delete elements.expiryDateInput.dataset.stashedValue;
+  }
+
+  elements.expiryDateInput.disabled = isInactive;
+  elements.expiryDateField.classList.toggle("is-disabled", isInactive);
   elements.expiryDateInput.required = !isInactive;
   elements.expiryDateInput.setCustomValidity("");
 }
@@ -336,6 +354,7 @@ function openForm(itemId = null, options = {}) {
   elements.categoryInput.value = item?.category || "";
   elements.expiryDateInput.value = item?.expiryDate || "";
   elements.inactiveInput.checked = Boolean(item?.isInactive);
+  elements.expiryDateInput.dataset.stashedValue = item?.expiryDate || "";
   elements.noteInput.value = item?.note || "";
   syncExpiryDateRequirement();
   renderFormStatusPreview();
@@ -353,6 +372,7 @@ function closeForm(options = {}) {
   state.editingItemId = null;
   state.returnToDetailsOnFormClose = false;
   elements.form.reset();
+  delete elements.expiryDateInput.dataset.stashedValue;
   syncExpiryDateRequirement();
   renderFormStatusPreview();
   hideSheet(elements.formSheet);
