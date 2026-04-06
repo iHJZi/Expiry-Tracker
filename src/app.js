@@ -418,7 +418,7 @@ function handleFormSubmit(event) {
   const title = elements.titleInput.value.trim();
 
   if (!title) {
-    elements.titleInput.setCustomValidity("Title is required.");
+    elements.titleInput.setCustomValidity("Name is required.");
     elements.titleInput.reportValidity();
     return;
   }
