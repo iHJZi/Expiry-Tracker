@@ -566,10 +566,12 @@ button {
 }
 
 #form-sheet .sheet__panel {
+  --form-page-gutter: 16px;
+  --form-header-top-space: calc(env(safe-area-inset-top) + 10px);
   width: min(100%, var(--max-width));
   min-height: 100dvh;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+  padding: 0 var(--form-page-gutter) calc(28px + env(safe-area-inset-bottom));
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -585,10 +587,11 @@ button {
   z-index: 2;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 18px;
-  padding: 2px 0 12px;
-  background: rgba(13, 17, 16, 0.96);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 0 calc(var(--form-page-gutter) * -1) 18px;
+  padding: var(--form-header-top-space) var(--form-page-gutter) 12px;
+  background: linear-gradient(180deg, rgba(13, 17, 16, 0.985), rgba(13, 17, 16, 0.94));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
   backdrop-filter: none;
 }
 
@@ -1065,12 +1068,14 @@ button {
   }
 
   #form-sheet .sheet__panel {
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+    --form-page-gutter: 12px;
+    --form-header-top-space: calc(env(safe-area-inset-top) + 8px);
+    padding: 0 var(--form-page-gutter) calc(12px + env(safe-area-inset-bottom));
   }
 
   #form-sheet .sheet__header {
-    margin-bottom: 8px;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    padding: var(--form-header-top-space) var(--form-page-gutter) 10px;
   }
 
   #form-sheet .icon-button {
