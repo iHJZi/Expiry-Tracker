@@ -80,6 +80,7 @@ const elements = {
 
 let waitingServiceWorkerRegistration = null;
 let isReloadingForUpdate = false;
+let lockedBodyScrollY = null;
 const SUGGESTION_CLOSE_DELAY_MS = 140;
 
 function escapeHtml(value) {
@@ -189,6 +190,44 @@ function setBodySheetState() {
     || !elements.confirmSheet.classList.contains("hidden");
 
   document.body.classList.toggle("body--sheet-open", anySheetOpen);
+
+  if (anySheetOpen) {
+    lockBodyScroll();
+  } else {
+    unlockBodyScroll();
+  }
+}
+
+function lockBodyScroll() {
+  if (lockedBodyScrollY !== null) {
+    return;
+  }
+
+  lockedBodyScrollY = window.scrollY;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${lockedBodyScrollY}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
+  document.body.style.overflow = "hidden";
+}
+
+function unlockBodyScroll() {
+  if (lockedBodyScrollY === null) {
+    return;
+  }
+
+  const scrollY = lockedBodyScrollY;
+  lockedBodyScrollY = null;
+
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
+  document.body.style.overflow = "";
+
+  window.scrollTo(0, scrollY);
 }
 
 function showSheet(sheet) {

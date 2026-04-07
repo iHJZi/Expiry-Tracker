@@ -1122,6 +1122,7 @@ button {
 
 .body--sheet-open {
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 @keyframes sheet-in {
