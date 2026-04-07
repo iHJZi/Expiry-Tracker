@@ -473,6 +473,14 @@ function renderStatusAccent(meta) {
   return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(formatStatusLabel(meta.status))}</span>`;
 }
 
+function renderListStatusAccent(meta) {
+  if (meta.status === "paid") {
+    return '<span class="status-badge status-badge--valid">Valid</span>';
+  }
+
+  return renderStatusAccent(meta);
+}
+
 function syncExpiryDateDisplay() {
   const hasExpiryDate = Boolean(elements.expiryDateInput.value);
   elements.expiryDateDisplay.textContent = hasExpiryDate ? formatDate(elements.expiryDateInput.value) : "Select date";
@@ -632,7 +640,7 @@ function renderList() {
               <span class="item-card__helper">${escapeHtml(meta.helperText)}</span>
             </div>
             <div class="item-card__status">
-              ${renderStatusAccent(meta)}
+              ${renderListStatusAccent(meta)}
             </div>
           </div>
         </button>
