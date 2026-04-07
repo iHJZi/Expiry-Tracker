@@ -680,7 +680,7 @@ function renderDetails() {
       </article>
       <article class="details-card__block">
         <span class="details-card__label">Status</span>
-        <p class="details-card__value">${escapeHtml(meta.helperText)}</p>
+        <p class="details-card__value">${escapeHtml(formatStatusLabel(meta.status) || "Date required")}</p>
       </article>
       <article class="details-card__block details-card__block--full">
         <span class="details-card__label">Note</span>
