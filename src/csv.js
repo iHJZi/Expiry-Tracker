@@ -9,9 +9,12 @@ export const CSV_COLUMNS = [
   "expiryDate",
   "note",
   "isInactive",
+  "noExpiryAsLongAsPaid",
   "createdAt",
   "updatedAt",
 ];
+
+const OPTIONAL_CSV_COLUMNS = new Set(["noExpiryAsLongAsPaid"]);
 
 const TRUE_VALUES = new Set(["true", "1", "yes", "y"]);
 const FALSE_VALUES = new Set(["false", "0", "no", "n", ""]);
@@ -110,7 +113,8 @@ function validateHeaderRow(headerRow) {
   const duplicates = normalizedHeaders.filter((header, index) =>
     header && normalizedHeaders.indexOf(header) !== index,
   );
-  const missing = CSV_COLUMNS.filter((header) => !normalizedHeaders.includes(header));
+  const requiredColumns = CSV_COLUMNS.filter((header) => !OPTIONAL_CSV_COLUMNS.has(header));
+  const missing = requiredColumns.filter((header) => !normalizedHeaders.includes(header));
   const extras = normalizedHeaders.filter((header) => header && !CSV_COLUMNS.includes(header));
 
   if (!normalizedHeaders.length || duplicates.length || missing.length || extras.length) {
@@ -126,7 +130,7 @@ function validateHeaderRow(headerRow) {
   };
 }
 
-function parseInactiveCell(value) {
+function parseBooleanCell(value) {
   const normalizedValue = String(value || "").trim().toLowerCase();
 
   if (TRUE_VALUES.has(normalizedValue)) {
@@ -155,6 +159,7 @@ export function serializeItemsToCsv(items) {
       item.expiryDate,
       item.note,
       item.isInactive ? "true" : "false",
+      item.noExpiryAsLongAsPaid ? "true" : "false",
       item.createdAt,
       item.updatedAt,
     ]),
@@ -227,18 +232,30 @@ export function importItemsFromCsv(text, existingItems = []) {
       continue;
     }
 
-    const inactiveValue = parseInactiveCell(getRowValue(paddedRow, headerValidation.headerMap, "isInactive"));
+    const inactiveValue = parseBooleanCell(getRowValue(paddedRow, headerValidation.headerMap, "isInactive"));
 
     if (!inactiveValue.ok) {
       issues.push(`Row ${rowNumber}: isInactive must be true or false.`);
       continue;
     }
 
+    const paidOverrideValue = parseBooleanCell(
+      getRowValue(paddedRow, headerValidation.headerMap, "noExpiryAsLongAsPaid"),
+    );
+
+    if (!paidOverrideValue.ok) {
+      issues.push(`Row ${rowNumber}: noExpiryAsLongAsPaid must be true or false.`);
+      continue;
+    }
+
+    const isInactive = inactiveValue.value;
+    const noExpiryAsLongAsPaid = !isInactive && paidOverrideValue.value;
+
     const expiryDateInput = String(getRowValue(paddedRow, headerValidation.headerMap, "expiryDate") || "").trim();
     const normalizedExpiryDate = normalizeDateInput(expiryDateInput);
 
-    if (!inactiveValue.value && !normalizedExpiryDate) {
-      issues.push(`Row ${rowNumber}: active items need a valid expiryDate in YYYY-MM-DD format.`);
+    if (!isInactive && !noExpiryAsLongAsPaid && !normalizedExpiryDate) {
+      issues.push(`Row ${rowNumber}: date-based items need a valid expiryDate in YYYY-MM-DD format.`);
       continue;
     }
 
@@ -249,7 +266,8 @@ export function importItemsFromCsv(text, existingItems = []) {
       category: getRowValue(paddedRow, headerValidation.headerMap, "category"),
       expiryDate: normalizedExpiryDate,
       note: getRowValue(paddedRow, headerValidation.headerMap, "note"),
-      isInactive: inactiveValue.value,
+      isInactive,
+      noExpiryAsLongAsPaid,
       createdAt: getRowValue(paddedRow, headerValidation.headerMap, "createdAt"),
       updatedAt: getRowValue(paddedRow, headerValidation.headerMap, "updatedAt"),
     }, usedIds));

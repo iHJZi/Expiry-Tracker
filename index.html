@@ -68,6 +68,7 @@
                 <button class="filter-pill" data-filter="soon" type="button">Soon</button>
                 <button class="filter-pill" data-filter="expired" type="button">Expired</button>
                 <button class="filter-pill" data-filter="inactive" type="button">Inactive</button>
+                <button class="filter-pill" data-filter="paid" type="button">No expiry as long as paid</button>
               </div>
             </section>
             <section class="filter-group" aria-labelledby="country-filter-title">
@@ -162,6 +163,13 @@
             <span class="field__toggle">
               <input id="inactive-input" name="isInactive" type="checkbox" />
               <span class="field__toggle-text">Inactive item?</span>
+            </span>
+          </label>
+
+          <label class="field field--toggle">
+            <span class="field__toggle">
+              <input id="paid-override-input" name="noExpiryAsLongAsPaid" type="checkbox" />
+              <span class="field__toggle-text">No expiry as long as paid?</span>
             </span>
           </label>
 

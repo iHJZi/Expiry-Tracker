@@ -62,6 +62,7 @@ const elements = {
   expiryDateInput: document.getElementById("expiry-date-input"),
   expiryDateDisplay: document.getElementById("expiry-date-display"),
   inactiveInput: document.getElementById("inactive-input"),
+  paidOverrideInput: document.getElementById("paid-override-input"),
   noteInput: document.getElementById("note-input"),
   formStatusPreview: document.getElementById("form-status-preview"),
   closeFormButton: document.getElementById("close-form-button"),
@@ -478,11 +479,23 @@ function syncExpiryDateDisplay() {
   elements.expiryDateDisplay.classList.toggle("is-placeholder", !hasExpiryDate);
 }
 
-function syncExpiryDateRequirement() {
-  const isInactive = elements.inactiveInput.checked;
+function hasManualOverrideActive() {
+  return elements.inactiveInput.checked || elements.paidOverrideInput.checked;
+}
+
+function syncExpiryDateRequirement(changedField = null) {
+  if (elements.inactiveInput.checked && elements.paidOverrideInput.checked) {
+    if (changedField === "paid") {
+      elements.inactiveInput.checked = false;
+    } else {
+      elements.paidOverrideInput.checked = false;
+    }
+  }
+
+  const hasManualOverride = hasManualOverrideActive();
   const stashedValue = elements.expiryDateInput.dataset.stashedValue || "";
 
-  if (isInactive) {
+  if (hasManualOverride) {
     if (elements.expiryDateInput.value) {
       elements.expiryDateInput.dataset.stashedValue = elements.expiryDateInput.value;
     } else if (!stashedValue) {
@@ -495,16 +508,16 @@ function syncExpiryDateRequirement() {
     delete elements.expiryDateInput.dataset.stashedValue;
   }
 
-  elements.expiryDateInput.disabled = isInactive;
-  elements.expiryDateField.classList.toggle("is-disabled", isInactive);
-  elements.expiryDateInput.required = !isInactive;
+  elements.expiryDateInput.disabled = hasManualOverride;
+  elements.expiryDateField.classList.toggle("is-disabled", hasManualOverride);
+  elements.expiryDateInput.required = !hasManualOverride;
   elements.expiryDateInput.setCustomValidity("");
   syncExpiryDateDisplay();
 }
 
 function renderSummary() {
   const counts = getStatusCounts(state.items);
-  const summaryOrder = ["valid", "soon", "expired", "inactive"];
+  const summaryOrder = ["valid", "soon", "expired", "inactive", "paid"];
 
   elements.summaryCards.innerHTML = summaryOrder
     .map((status) => {
@@ -681,12 +694,15 @@ function renderFormStatusPreview() {
   const previewItem = {
     expiryDate: elements.expiryDateInput.value,
     isInactive: elements.inactiveInput.checked,
+    noExpiryAsLongAsPaid: elements.paidOverrideInput.checked,
   };
   const meta = getItemMeta(previewItem);
   const previewLead = meta.config
     ? renderStatusAccent(meta)
     : `<span class="status-note">${escapeHtml(meta.helperText)}</span>`;
-  const previewText = meta.config ? `<span>${escapeHtml(meta.helperText)}</span>` : "";
+  const previewText = meta.config && meta.helperText !== formatStatusLabel(meta.status)
+    ? `<span>${escapeHtml(meta.helperText)}</span>`
+    : "";
 
   elements.formStatusPreview.innerHTML = `
     <span class="status-preview__title">Status preview</span>
@@ -716,6 +732,7 @@ function openForm(itemId = null, options = {}) {
   elements.categoryInput.value = item?.category || "";
   elements.expiryDateInput.value = item?.expiryDate || "";
   elements.inactiveInput.checked = Boolean(item?.isInactive);
+  elements.paidOverrideInput.checked = Boolean(item?.noExpiryAsLongAsPaid);
   elements.expiryDateInput.dataset.stashedValue = item?.expiryDate || "";
   elements.noteInput.value = item?.note || "";
   closeAllSuggestionLists();
@@ -791,7 +808,7 @@ function handleFormSubmit(event) {
 
   elements.titleInput.setCustomValidity("");
 
-  if (!elements.inactiveInput.checked && !elements.expiryDateInput.value) {
+  if (!hasManualOverrideActive() && !elements.expiryDateInput.value) {
     elements.expiryDateInput.setCustomValidity("Expiry date is required.");
     elements.expiryDateInput.reportValidity();
     return;
@@ -807,6 +824,7 @@ function handleFormSubmit(event) {
       category: elements.categoryInput.value,
       expiryDate: elements.expiryDateInput.value,
       isInactive: elements.inactiveInput.checked,
+      noExpiryAsLongAsPaid: elements.paidOverrideInput.checked,
       note: elements.noteInput.value,
     },
     existingItem,
@@ -957,7 +975,11 @@ function registerEvents() {
   });
 
   elements.inactiveInput.addEventListener("change", () => {
-    syncExpiryDateRequirement();
+    syncExpiryDateRequirement("inactive");
+    renderFormStatusPreview();
+  });
+  elements.paidOverrideInput.addEventListener("change", () => {
+    syncExpiryDateRequirement("paid");
     renderFormStatusPreview();
   });
   elements.titleInput.addEventListener("input", () => elements.titleInput.setCustomValidity(""));

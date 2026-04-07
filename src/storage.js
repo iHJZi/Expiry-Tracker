@@ -89,8 +89,30 @@ function normalizeInactiveFlag(raw) {
   return false;
 }
 
+function normalizePaidOverrideFlag(raw) {
+  if (typeof raw?.noExpiryAsLongAsPaid === "boolean") {
+    return raw.noExpiryAsLongAsPaid;
+  }
+
+  if (typeof raw?.noExpiryAsLongAsPaid === "string") {
+    const normalizedValue = raw.noExpiryAsLongAsPaid.trim().toLowerCase();
+
+    if (["true", "1", "yes", "y"].includes(normalizedValue)) {
+      return true;
+    }
+
+    if (["false", "0", "no", "n", ""].includes(normalizedValue)) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 function normalizeItem(raw) {
   const now = new Date().toISOString();
+  const isInactive = normalizeInactiveFlag(raw);
+  const noExpiryAsLongAsPaid = !isInactive && normalizePaidOverrideFlag(raw);
 
   return {
     id: normalizeString(raw?.id) || crypto.randomUUID(),
@@ -98,7 +120,8 @@ function normalizeItem(raw) {
     country: normalizeString(raw?.country),
     category: normalizeString(raw?.category),
     expiryDate: normalizeDateInput(normalizeString(raw?.expiryDate)),
-    isInactive: normalizeInactiveFlag(raw),
+    isInactive,
+    noExpiryAsLongAsPaid,
     note: normalizeString(raw?.note),
     createdAt: normalizeString(raw?.createdAt) || now,
     updatedAt: normalizeString(raw?.updatedAt) || now,
@@ -165,6 +188,8 @@ export function saveHiddenSuggestions(hiddenSuggestions) {
 
 export function buildItemPayload(formValues, existingItem) {
   const timestamp = new Date().toISOString();
+  const isInactive = Boolean(formValues.isInactive);
+  const noExpiryAsLongAsPaid = !isInactive && Boolean(formValues.noExpiryAsLongAsPaid);
 
   return {
     id: existingItem?.id || crypto.randomUUID(),
@@ -172,7 +197,8 @@ export function buildItemPayload(formValues, existingItem) {
     country: normalizeString(formValues.country),
     category: normalizeString(formValues.category),
     expiryDate: normalizeDateInput(normalizeString(formValues.expiryDate)),
-    isInactive: Boolean(formValues.isInactive),
+    isInactive,
+    noExpiryAsLongAsPaid,
     note: normalizeString(formValues.note),
     createdAt: existingItem?.createdAt || timestamp,
     updatedAt: timestamp,
@@ -181,6 +207,8 @@ export function buildItemPayload(formValues, existingItem) {
 
 export function buildImportedItemPayload(rawItem, usedIds = new Set()) {
   const timestamp = new Date().toISOString();
+  const isInactive = normalizeInactiveFlag(rawItem);
+  const noExpiryAsLongAsPaid = !isInactive && normalizePaidOverrideFlag(rawItem);
 
   return {
     id: getUniqueId(rawItem?.id, usedIds),
@@ -188,7 +216,8 @@ export function buildImportedItemPayload(rawItem, usedIds = new Set()) {
     country: normalizeString(rawItem?.country),
     category: normalizeString(rawItem?.category),
     expiryDate: normalizeDateInput(normalizeString(rawItem?.expiryDate)),
-    isInactive: normalizeInactiveFlag(rawItem),
+    isInactive,
+    noExpiryAsLongAsPaid,
     note: normalizeString(rawItem?.note),
     createdAt: normalizeTimestamp(rawItem?.createdAt, timestamp),
     updatedAt: normalizeTimestamp(rawItem?.updatedAt, timestamp),

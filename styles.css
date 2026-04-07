@@ -13,6 +13,7 @@
   --soon: #edc15c;
   --valid: #57c97d;
   --inactive: #9ea9b7;
+  --paid: #78b7ff;
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
   --radius: 22px;
   --radius-sm: 16px;
@@ -264,6 +265,10 @@ button {
   background: var(--inactive);
 }
 
+.summary-card--paid .summary-card__dot {
+  background: var(--paid);
+}
+
 .filter-row {
   display: flex;
   gap: 10px;
@@ -427,6 +432,11 @@ button {
 .status-badge--inactive {
   background: rgba(158, 169, 183, 0.16);
   color: #d7dfe9;
+}
+
+.status-badge--paid {
+  background: rgba(120, 183, 255, 0.16);
+  color: #d6e8ff;
 }
 
 .status-note {
@@ -1297,7 +1307,7 @@ button {
   }
 
   .summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
 
   .sheet {
