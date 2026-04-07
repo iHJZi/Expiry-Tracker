@@ -18,11 +18,31 @@ import {
 } from "./storage.js";
 import { importItemsFromCsv, serializeItemsToCsv } from "./csv.js";
 
+const FILTER_COLLAPSE_STORAGE_KEY = "expiry-tracker-filter-collapsed-v1";
+
+function loadFilterCollapsedState() {
+  try {
+    return localStorage.getItem(FILTER_COLLAPSE_STORAGE_KEY) === "true";
+  } catch (error) {
+    console.error("Failed to load filter collapsed state", error);
+    return false;
+  }
+}
+
+function saveFilterCollapsedState(isCollapsed) {
+  try {
+    localStorage.setItem(FILTER_COLLAPSE_STORAGE_KEY, String(Boolean(isCollapsed)));
+  } catch (error) {
+    console.error("Failed to save filter collapsed state", error);
+  }
+}
+
 const state = {
   items: loadItems(),
   filter: "all",
   countryFilter: "all",
   categoryFilter: "all",
+  filterCollapsed: loadFilterCollapsedState(),
   backupMenuOpen: false,
   activeSuggestionField: null,
   suggestionInteractionField: null,
@@ -35,6 +55,9 @@ const state = {
 
 const elements = {
   summaryCards: document.getElementById("summary-cards"),
+  filterSection: document.getElementById("filter-section"),
+  filterToggleButton: document.getElementById("filter-toggle-button"),
+  filterGroups: document.getElementById("filter-groups"),
   itemsSection: document.getElementById("items-section"),
   listCaption: document.getElementById("list-caption"),
   itemList: document.getElementById("item-list"),
@@ -595,6 +618,13 @@ function renderSummary() {
     .join("");
 }
 
+function renderFilterSection() {
+  elements.filterSection.classList.toggle("is-collapsed", state.filterCollapsed);
+  elements.filterToggleButton.setAttribute("aria-expanded", String(!state.filterCollapsed));
+  elements.filterGroups.classList.toggle("hidden", state.filterCollapsed);
+  elements.filterGroups.setAttribute("aria-hidden", String(state.filterCollapsed));
+}
+
 function renderFilters() {
   elements.filterButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.filter === state.filter);
@@ -774,6 +804,7 @@ function renderFormStatusPreview() {
 
 function render() {
   renderSummary();
+  renderFilterSection();
   renderFilters();
   renderList();
   renderDetails();
@@ -1043,6 +1074,11 @@ function registerEvents() {
   });
   elements.titleInput.addEventListener("input", () => elements.titleInput.setCustomValidity(""));
   elements.expiryDateInput.addEventListener("input", () => elements.expiryDateInput.setCustomValidity(""));
+  elements.filterToggleButton.addEventListener("click", () => {
+    state.filterCollapsed = !state.filterCollapsed;
+    saveFilterCollapsedState(state.filterCollapsed);
+    renderFilterSection();
+  });
 
   elements.filterButtons.forEach((button) => {
     button.addEventListener("click", () => {
