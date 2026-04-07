@@ -44,7 +44,9 @@ const elements = {
   formTitle: document.getElementById("form-title"),
   titleInput: document.getElementById("title-input"),
   countryInput: document.getElementById("country-input"),
+  countryOptions: document.getElementById("country-options"),
   categoryInput: document.getElementById("category-input"),
+  categoryOptions: document.getElementById("category-options"),
   expiryDateField: document.getElementById("expiry-date-input").closest(".field"),
   expiryDateInput: document.getElementById("expiry-date-input"),
   expiryDateDisplay: document.getElementById("expiry-date-display"),
@@ -219,6 +221,40 @@ function getAvailableCountries(items) {
       .map((item) => item.country)
       .filter(Boolean),
   )].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
+}
+
+function getSuggestionValues(items, key) {
+  const valuesByKey = new Map();
+
+  items.forEach((item) => {
+    const rawValue = typeof item?.[key] === "string" ? item[key].trim() : "";
+
+    if (!rawValue) {
+      return;
+    }
+
+    const normalizedKey = rawValue.toLocaleLowerCase();
+
+    if (!valuesByKey.has(normalizedKey)) {
+      valuesByKey.set(normalizedKey, rawValue);
+    }
+  });
+
+  return [...valuesByKey.values()].sort((left, right) =>
+    left.localeCompare(right, undefined, { sensitivity: "base" }));
+}
+
+function renderFormSuggestions() {
+  const countrySuggestions = getSuggestionValues(state.items, "country");
+  const categorySuggestions = getSuggestionValues(state.items, "category");
+
+  elements.countryOptions.innerHTML = countrySuggestions
+    .map((value) => `<option value="${escapeHtml(value)}"></option>`)
+    .join("");
+
+  elements.categoryOptions.innerHTML = categorySuggestions
+    .map((value) => `<option value="${escapeHtml(value)}"></option>`)
+    .join("");
 }
 
 function matchesCountryFilter(item) {
@@ -441,6 +477,7 @@ function renderFormStatusPreview() {
 function render() {
   renderSummary();
   renderFilters();
+  renderFormSuggestions();
   renderList();
   renderDetails();
   renderFormStatusPreview();

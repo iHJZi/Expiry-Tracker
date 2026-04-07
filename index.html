@@ -108,27 +108,17 @@
 
           <label class="field">
             <span class="field__label">Country</span>
-            <input id="country-input" name="country" type="text" maxlength="80" />
+            <input id="country-input" name="country" type="text" list="country-options" maxlength="80" />
           </label>
+
+          <datalist id="country-options"></datalist>
 
           <label class="field">
             <span class="field__label">Category</span>
             <input id="category-input" name="category" type="text" list="category-options" maxlength="80" />
           </label>
 
-          <datalist id="category-options">
-            <option value="Passport"></option>
-            <option value="Visa"></option>
-            <option value="Residence Permit"></option>
-            <option value="Health Insurance"></option>
-            <option value="Liability Insurance"></option>
-            <option value="Driving License"></option>
-            <option value="Vehicle License"></option>
-            <option value="SIM / Contract"></option>
-            <option value="Work Permit"></option>
-            <option value="Subscription"></option>
-            <option value="Other"></option>
-          </datalist>
+          <datalist id="category-options"></datalist>
 
           <label class="field field--date">
             <span class="field__label">Expiry date</span>
