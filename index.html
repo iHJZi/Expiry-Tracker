@@ -100,25 +100,51 @@
           </button>
         </div>
 
-        <form id="item-form" class="item-form" novalidate>
+        <form id="item-form" class="item-form" novalidate autocomplete="off">
           <label class="field">
             <span class="field__label">Name</span>
             <input id="title-input" name="title" type="text" maxlength="100" required />
           </label>
 
-          <label class="field">
-            <span class="field__label">Country</span>
-            <input id="country-input" name="country" type="text" list="country-options" maxlength="80" />
-          </label>
+          <div class="field field--suggested">
+            <label class="field__label" for="country-input">Country</label>
+            <input
+              id="country-input"
+              name="documentCountry"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="words"
+              spellcheck="false"
+              inputmode="text"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="country-suggestions"
+            />
+            <div id="country-suggestions" class="field__suggestions hidden" role="listbox" aria-label="Country suggestions" aria-hidden="true"></div>
+          </div>
 
-          <datalist id="country-options"></datalist>
-
-          <label class="field">
-            <span class="field__label">Category</span>
-            <input id="category-input" name="category" type="text" list="category-options" maxlength="80" />
-          </label>
-
-          <datalist id="category-options"></datalist>
+          <div class="field field--suggested">
+            <label class="field__label" for="category-input">Category</label>
+            <input
+              id="category-input"
+              name="documentCategory"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="words"
+              spellcheck="false"
+              inputmode="text"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="category-suggestions"
+            />
+            <div id="category-suggestions" class="field__suggestions hidden" role="listbox" aria-label="Category suggestions" aria-hidden="true"></div>
+          </div>
 
           <label class="field field--date">
             <span class="field__label">Expiry date</span>

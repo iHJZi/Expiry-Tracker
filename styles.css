@@ -636,6 +636,10 @@ button {
   min-width: 0;
 }
 
+#form-sheet .field--suggested {
+  gap: 8px;
+}
+
 #form-sheet .field__date-shell {
   position: relative;
   display: flex;
@@ -691,6 +695,39 @@ button {
     border-color 160ms ease,
     background-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+#form-sheet .field__suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(23, 27, 26, 0.98), rgba(15, 19, 18, 0.98));
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  max-height: 220px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#form-sheet .field__suggestion {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  line-height: 1.3;
+}
+
+#form-sheet .field__suggestion:hover,
+#form-sheet .field__suggestion:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
 }
 
 #form-sheet .field input:not([type="checkbox"]) {
@@ -1093,6 +1130,10 @@ button {
     gap: 5px;
   }
 
+  #form-sheet .field--suggested {
+    gap: 4px;
+  }
+
   #form-sheet .field__label {
     font-size: 0.84rem;
   }
@@ -1107,6 +1148,19 @@ button {
     min-height: 44px;
     padding: 10px 12px;
     border-radius: 13px;
+  }
+
+  #form-sheet .field__suggestions {
+    gap: 4px;
+    padding: 6px;
+    border-radius: 13px;
+    max-height: 200px;
+  }
+
+  #form-sheet .field__suggestion {
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 0.92rem;
   }
 
   #form-sheet .field input:not([type="checkbox"]),

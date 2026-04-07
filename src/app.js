@@ -17,6 +17,7 @@ const state = {
   filter: "all",
   countryFilter: "all",
   backupMenuOpen: false,
+  activeSuggestionField: null,
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
@@ -44,9 +45,9 @@ const elements = {
   formTitle: document.getElementById("form-title"),
   titleInput: document.getElementById("title-input"),
   countryInput: document.getElementById("country-input"),
-  countryOptions: document.getElementById("country-options"),
+  countrySuggestions: document.getElementById("country-suggestions"),
   categoryInput: document.getElementById("category-input"),
-  categoryOptions: document.getElementById("category-options"),
+  categorySuggestions: document.getElementById("category-suggestions"),
   expiryDateField: document.getElementById("expiry-date-input").closest(".field"),
   expiryDateInput: document.getElementById("expiry-date-input"),
   expiryDateDisplay: document.getElementById("expiry-date-display"),
@@ -68,6 +69,7 @@ const elements = {
 
 let waitingServiceWorkerRegistration = null;
 let isReloadingForUpdate = false;
+const SUGGESTION_CLOSE_DELAY_MS = 120;
 
 function escapeHtml(value) {
   return value
@@ -244,17 +246,106 @@ function getSuggestionValues(items, key) {
     left.localeCompare(right, undefined, { sensitivity: "base" }));
 }
 
-function renderFormSuggestions() {
-  const countrySuggestions = getSuggestionValues(state.items, "country");
-  const categorySuggestions = getSuggestionValues(state.items, "category");
+function getSuggestionFieldConfig(fieldName) {
+  if (fieldName === "country") {
+    return {
+      key: "country",
+      input: elements.countryInput,
+      list: elements.countrySuggestions,
+    };
+  }
 
-  elements.countryOptions.innerHTML = countrySuggestions
-    .map((value) => `<option value="${escapeHtml(value)}"></option>`)
-    .join("");
+  if (fieldName === "category") {
+    return {
+      key: "category",
+      input: elements.categoryInput,
+      list: elements.categorySuggestions,
+    };
+  }
 
-  elements.categoryOptions.innerHTML = categorySuggestions
-    .map((value) => `<option value="${escapeHtml(value)}"></option>`)
+  return null;
+}
+
+function closeSuggestionList(fieldName) {
+  const field = getSuggestionFieldConfig(fieldName);
+
+  if (!field) {
+    return;
+  }
+
+  field.list.innerHTML = "";
+  field.list.classList.add("hidden");
+  field.list.setAttribute("aria-hidden", "true");
+  field.input.setAttribute("aria-expanded", "false");
+
+  if (state.activeSuggestionField === fieldName) {
+    state.activeSuggestionField = null;
+  }
+}
+
+function closeAllSuggestionLists() {
+  closeSuggestionList("country");
+  closeSuggestionList("category");
+}
+
+function getFilteredSuggestions(fieldName) {
+  const field = getSuggestionFieldConfig(fieldName);
+
+  if (!field) {
+    return [];
+  }
+
+  const allSuggestions = getSuggestionValues(state.items, field.key);
+  const query = field.input.value.trim().toLocaleLowerCase();
+
+  if (!query) {
+    return allSuggestions;
+  }
+
+  return allSuggestions.filter((value) => value.toLocaleLowerCase().includes(query));
+}
+
+function renderSuggestionList(fieldName) {
+  const field = getSuggestionFieldConfig(fieldName);
+
+  if (!field) {
+    return;
+  }
+
+  const suggestions = getFilteredSuggestions(fieldName);
+
+  if (!suggestions.length) {
+    closeSuggestionList(fieldName);
+    return;
+  }
+
+  ["country", "category"]
+    .filter((name) => name !== fieldName)
+    .forEach((name) => closeSuggestionList(name));
+
+  field.list.innerHTML = suggestions
+    .map((value) => `
+      <button class="field__suggestion" type="button" role="option" data-suggestion-value="${escapeHtml(value)}">
+        ${escapeHtml(value)}
+      </button>
+    `)
     .join("");
+  field.list.classList.remove("hidden");
+  field.list.setAttribute("aria-hidden", "false");
+  field.input.setAttribute("aria-expanded", "true");
+  state.activeSuggestionField = fieldName;
+}
+
+function applySuggestionValue(fieldName, value) {
+  const field = getSuggestionFieldConfig(fieldName);
+
+  if (!field) {
+    return;
+  }
+
+  field.input.value = value;
+  closeSuggestionList(fieldName);
+  field.input.focus();
 }
 
 function matchesCountryFilter(item) {
@@ -477,7 +568,6 @@ function renderFormStatusPreview() {
 function render() {
   renderSummary();
   renderFilters();
-  renderFormSuggestions();
   renderList();
   renderDetails();
   renderFormStatusPreview();
@@ -496,6 +586,7 @@ function openForm(itemId = null, options = {}) {
   elements.inactiveInput.checked = Boolean(item?.isInactive);
   elements.expiryDateInput.dataset.stashedValue = item?.expiryDate || "";
   elements.noteInput.value = item?.note || "";
+  closeAllSuggestionLists();
   syncExpiryDateRequirement();
   renderFormStatusPreview();
 
@@ -513,6 +604,7 @@ function closeForm(options = {}) {
   state.editingItemId = null;
   state.returnToDetailsOnFormClose = false;
   elements.form.reset();
+  closeAllSuggestionLists();
   delete elements.expiryDateInput.dataset.stashedValue;
   syncExpiryDateRequirement();
   renderFormStatusPreview();
@@ -650,6 +742,39 @@ function registerEvents() {
     });
   });
 
+  ["country", "category"].forEach((fieldName) => {
+    const field = getSuggestionFieldConfig(fieldName);
+
+    field.input.addEventListener("focus", () => {
+      renderSuggestionList(fieldName);
+    });
+
+    field.input.addEventListener("input", () => {
+      renderSuggestionList(fieldName);
+    });
+
+    field.input.addEventListener("blur", () => {
+      window.setTimeout(() => closeSuggestionList(fieldName), SUGGESTION_CLOSE_DELAY_MS);
+    });
+
+    field.input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeSuggestionList(fieldName);
+      }
+    });
+
+    field.list.addEventListener("pointerdown", (event) => {
+      const suggestionButton = event.target.closest("[data-suggestion-value]");
+
+      if (!suggestionButton) {
+        return;
+      }
+
+      event.preventDefault();
+      applySuggestionValue(fieldName, suggestionButton.dataset.suggestionValue);
+    });
+  });
+
   elements.inactiveInput.addEventListener("change", () => {
     syncExpiryDateRequirement();
     renderFormStatusPreview();
@@ -715,6 +840,11 @@ function registerEvents() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") {
+      return;
+    }
+
+    if (state.activeSuggestionField) {
+      closeSuggestionList(state.activeSuggestionField);
       return;
     }
 
