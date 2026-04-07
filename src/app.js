@@ -22,6 +22,7 @@ const state = {
   items: loadItems(),
   filter: "all",
   countryFilter: "all",
+  categoryFilter: "all",
   backupMenuOpen: false,
   activeSuggestionField: null,
   suggestionInteractionField: null,
@@ -46,6 +47,7 @@ const elements = {
   backupFeedback: document.getElementById("backup-feedback"),
   filterButtons: [...document.querySelectorAll("[data-filter]")],
   countryFilterRow: document.getElementById("country-filter-row"),
+  categoryFilterRow: document.getElementById("category-filter-row"),
   formSheet: document.getElementById("form-sheet"),
   detailsSheet: document.getElementById("details-sheet"),
   confirmSheet: document.getElementById("confirm-sheet"),
@@ -226,11 +228,32 @@ function getItemById(itemId) {
 }
 
 function getAvailableCountries(items) {
-  return [...new Set(
-    items
-      .map((item) => item.country)
-      .filter(Boolean),
-  )].sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
+  return getUniqueItemValues(items, "country");
+}
+
+function getAvailableCategories(items) {
+  return getUniqueItemValues(items, "category");
+}
+
+function getUniqueItemValues(items, key) {
+  const valuesByKey = new Map();
+
+  items.forEach((item) => {
+    const rawValue = typeof item?.[key] === "string" ? item[key].trim() : "";
+
+    if (!rawValue) {
+      return;
+    }
+
+    const normalizedKey = rawValue.toLocaleLowerCase();
+
+    if (!valuesByKey.has(normalizedKey)) {
+      valuesByKey.set(normalizedKey, rawValue);
+    }
+  });
+
+  return [...valuesByKey.values()].sort((left, right) =>
+    left.localeCompare(right, undefined, { sensitivity: "base" }));
 }
 
 function getSuggestionValues(items, key) {
@@ -433,6 +456,14 @@ function matchesCountryFilter(item) {
   return item.country === state.countryFilter;
 }
 
+function matchesCategoryFilter(item) {
+  if (state.categoryFilter === "all") {
+    return true;
+  }
+
+  return item.category === state.categoryFilter;
+}
+
 function renderStatusAccent(meta) {
   if (!meta.config) {
     return '<span class="status-note">Date required</span>';
@@ -498,9 +529,14 @@ function renderFilters() {
   });
 
   const countries = getAvailableCountries(state.items);
+  const categories = getAvailableCategories(state.items);
 
   if (state.countryFilter !== "all" && !countries.includes(state.countryFilter)) {
     state.countryFilter = "all";
+  }
+
+  if (state.categoryFilter !== "all" && !categories.includes(state.categoryFilter)) {
+    state.categoryFilter = "all";
   }
 
   elements.countryFilterRow.innerHTML = [
@@ -519,11 +555,30 @@ function renderFilters() {
       </button>
     `),
   ].join("");
+
+  elements.categoryFilterRow.innerHTML = [
+    `
+      <button class="filter-pill ${state.categoryFilter === "all" ? "is-active" : ""}" data-category-filter="all" type="button">
+        All categories
+      </button>
+    `,
+    ...categories.map((category) => `
+      <button
+        class="filter-pill ${state.categoryFilter === category ? "is-active" : ""}"
+        data-category-filter="${escapeHtml(category)}"
+        type="button"
+      >
+        ${escapeHtml(category)}
+      </button>
+    `),
+  ].join("");
 }
 
 function getFilteredItems() {
   return sortItemsByUrgency(state.items).filter((item) =>
-    matchesFilter(item, state.filter) && matchesCountryFilter(item),
+    matchesFilter(item, state.filter)
+    && matchesCountryFilter(item)
+    && matchesCategoryFilter(item),
   );
 }
 
@@ -923,6 +978,17 @@ function registerEvents() {
     }
 
     state.countryFilter = countryButton.dataset.countryFilter;
+    render();
+  });
+
+  elements.categoryFilterRow.addEventListener("click", (event) => {
+    const categoryButton = event.target.closest("[data-category-filter]");
+
+    if (!categoryButton) {
+      return;
+    }
+
+    state.categoryFilter = categoryButton.dataset.categoryFilter;
     render();
   });
 
