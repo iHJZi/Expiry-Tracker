@@ -481,6 +481,18 @@ function renderListStatusAccent(meta) {
   return renderStatusAccent(meta);
 }
 
+function renderDetailsStatusAccent(meta) {
+  if (!meta.config) {
+    return '<span class="status-note">Date required</span>';
+  }
+
+  const label = meta.status === "inactive"
+    ? formatStatusLabel(meta.status)
+    : meta.helperText || formatStatusLabel(meta.status);
+
+  return `<span class="status-badge status-badge--${meta.config.tone}">${escapeHtml(label)}</span>`;
+}
+
 function syncExpiryDateDisplay() {
   const hasExpiryDate = Boolean(elements.expiryDateInput.value);
   elements.expiryDateDisplay.textContent = hasExpiryDate ? formatDate(elements.expiryDateInput.value) : "Select date";
@@ -661,7 +673,7 @@ function renderDetails() {
 
   elements.detailsContent.innerHTML = `
     <div class="details-card__headline">
-      ${renderStatusAccent(meta)}
+      ${renderDetailsStatusAccent(meta)}
       <h3>${escapeHtml(item.title)}</h3>
     </div>
 

@@ -1036,7 +1036,15 @@ button {
 .details-card__headline {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 12px;
+}
+
+.details-card__headline .status-badge,
+.details-card__headline .status-note {
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
 }
 
 .details-card__headline h3 {
