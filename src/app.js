@@ -517,7 +517,7 @@ function syncExpiryDateRequirement(changedField = null) {
 
 function renderSummary() {
   const counts = getStatusCounts(state.items);
-  const summaryOrder = ["valid", "soon", "expired", "inactive", "paid"];
+  const summaryOrder = ["valid", "soon", "expired", "inactive"];
 
   elements.summaryCards.innerHTML = summaryOrder
     .map((status) => {

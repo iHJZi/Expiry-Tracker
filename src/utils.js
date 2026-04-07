@@ -6,6 +6,14 @@ export const STATUS_CONFIG = {
   paid: { label: "No expiry as long as paid", tone: "paid" },
 };
 
+function getStatusGroupFromStatus(status) {
+  if (status === "paid") {
+    return "valid";
+  }
+
+  return status;
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DATE_INPUT_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -189,11 +197,13 @@ export function getHelperText(status, daysLeft) {
 
 export function getItemMeta(item) {
   const status = getStatus(item);
+  const groupStatus = getStatusGroupFromStatus(status);
   const daysLeft = status === "inactive" || status === "paid" ? null : getDaysLeft(item.expiryDate);
   const helperText = getHelperText(status, daysLeft);
 
   return {
     status,
+    groupStatus,
     daysLeft,
     helperText,
     config: STATUS_CONFIG[status],
@@ -233,17 +243,16 @@ export function sortItemsByUrgency(items) {
       soon: 1,
       valid: 2,
       inactive: 3,
-      paid: 4,
-      none: 5,
+      none: 4,
     };
 
-    const groupDiff = groupOrder[leftMeta.status || "none"] - groupOrder[rightMeta.status || "none"];
+    const groupDiff = groupOrder[leftMeta.groupStatus || "none"] - groupOrder[rightMeta.groupStatus || "none"];
 
     if (groupDiff !== 0) {
       return groupDiff;
     }
 
-    if (leftMeta.status === "expired") {
+    if (leftMeta.groupStatus === "expired") {
       const expiredDiff = compareNullableDatesDesc(left.expiryDate, right.expiryDate);
 
       if (expiredDiff !== 0) {
@@ -251,7 +260,7 @@ export function sortItemsByUrgency(items) {
       }
     }
 
-    if (leftMeta.status === "soon" || leftMeta.status === "valid") {
+    if (leftMeta.groupStatus === "soon" || leftMeta.groupStatus === "valid") {
       const activeDiff = compareNullableDatesAsc(left.expiryDate, right.expiryDate);
 
       if (activeDiff !== 0) {
@@ -266,7 +275,7 @@ export function sortItemsByUrgency(items) {
 export function getStatusCounts(items) {
   return items.reduce(
     (counts, item) => {
-      const status = getStatus(item);
+      const status = getStatusGroupFromStatus(getStatus(item));
 
       if (status) {
         counts[status] += 1;
@@ -274,7 +283,7 @@ export function getStatusCounts(items) {
 
       return counts;
     },
-    { expired: 0, soon: 0, valid: 0, inactive: 0, paid: 0 },
+    { expired: 0, soon: 0, valid: 0, inactive: 0 },
   );
 }
 
@@ -283,7 +292,7 @@ export function matchesFilter(item, filter) {
     return true;
   }
 
-  return getStatus(item) === filter;
+  return getStatusGroupFromStatus(getStatus(item)) === filter;
 }
 
 export function getSecondaryText(item) {
