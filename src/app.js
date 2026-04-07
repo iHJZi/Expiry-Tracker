@@ -9,7 +9,13 @@ import {
   matchesFilter,
   sortItemsByUrgency,
 } from "./utils.js";
-import { buildItemPayload, loadItems, saveItems } from "./storage.js";
+import {
+  buildItemPayload,
+  loadHiddenSuggestions,
+  loadItems,
+  saveHiddenSuggestions,
+  saveItems,
+} from "./storage.js";
 import { importItemsFromCsv, serializeItemsToCsv } from "./csv.js";
 
 const state = {
@@ -18,6 +24,8 @@ const state = {
   countryFilter: "all",
   backupMenuOpen: false,
   activeSuggestionField: null,
+  suggestionInteractionField: null,
+  hiddenSuggestions: loadHiddenSuggestions(),
   selectedItemId: null,
   editingItemId: null,
   deleteTargetId: null,
@@ -69,7 +77,7 @@ const elements = {
 
 let waitingServiceWorkerRegistration = null;
 let isReloadingForUpdate = false;
-const SUGGESTION_CLOSE_DELAY_MS = 120;
+const SUGGESTION_CLOSE_DELAY_MS = 140;
 
 function escapeHtml(value) {
   return value
@@ -227,6 +235,7 @@ function getAvailableCountries(items) {
 
 function getSuggestionValues(items, key) {
   const valuesByKey = new Map();
+  const hiddenValues = new Set(state.hiddenSuggestions[key] || []);
 
   items.forEach((item) => {
     const rawValue = typeof item?.[key] === "string" ? item[key].trim() : "";
@@ -236,6 +245,10 @@ function getSuggestionValues(items, key) {
     }
 
     const normalizedKey = rawValue.toLocaleLowerCase();
+
+    if (hiddenValues.has(normalizedKey)) {
+      return;
+    }
 
     if (!valuesByKey.has(normalizedKey)) {
       valuesByKey.set(normalizedKey, rawValue);
@@ -266,6 +279,57 @@ function getSuggestionFieldConfig(fieldName) {
   return null;
 }
 
+function normalizeSuggestionValue(value) {
+  return String(value || "").trim().toLocaleLowerCase();
+}
+
+function beginSuggestionInteraction(fieldName) {
+  state.suggestionInteractionField = fieldName;
+}
+
+function endSuggestionInteraction(fieldName) {
+  window.setTimeout(() => {
+    if (state.suggestionInteractionField === fieldName) {
+      state.suggestionInteractionField = null;
+    }
+  }, 0);
+}
+
+function persistHiddenSuggestions() {
+  saveHiddenSuggestions(state.hiddenSuggestions);
+}
+
+function hideSuggestionValue(fieldName, value) {
+  const normalizedValue = normalizeSuggestionValue(value);
+
+  if (!normalizedValue) {
+    return;
+  }
+
+  const nextValues = new Set(state.hiddenSuggestions[fieldName] || []);
+  nextValues.add(normalizedValue);
+  state.hiddenSuggestions[fieldName] = [...nextValues];
+  persistHiddenSuggestions();
+}
+
+function restoreSuggestionValue(fieldName, value) {
+  const normalizedValue = normalizeSuggestionValue(value);
+
+  if (!normalizedValue) {
+    return;
+  }
+
+  const nextValues = (state.hiddenSuggestions[fieldName] || [])
+    .filter((entry) => entry !== normalizedValue);
+
+  if (nextValues.length === (state.hiddenSuggestions[fieldName] || []).length) {
+    return;
+  }
+
+  state.hiddenSuggestions[fieldName] = nextValues;
+  persistHiddenSuggestions();
+}
+
 function closeSuggestionList(fieldName) {
   const field = getSuggestionFieldConfig(fieldName);
 
@@ -280,6 +344,10 @@ function closeSuggestionList(fieldName) {
 
   if (state.activeSuggestionField === fieldName) {
     state.activeSuggestionField = null;
+  }
+
+  if (state.suggestionInteractionField === fieldName) {
+    state.suggestionInteractionField = null;
   }
 }
 
@@ -325,9 +393,18 @@ function renderSuggestionList(fieldName) {
 
   field.list.innerHTML = suggestions
     .map((value) => `
-      <button class="field__suggestion" type="button" role="option" data-suggestion-value="${escapeHtml(value)}">
-        ${escapeHtml(value)}
-      </button>
+      <div class="field__suggestion" role="option" tabindex="0" data-suggestion-value="${escapeHtml(value)}" aria-label="${escapeHtml(value)}">
+        <span class="field__suggestion-select">${escapeHtml(value)}</span>
+        <button
+          class="field__suggestion-remove"
+          type="button"
+          data-suggestion-remove="true"
+          data-suggestion-value="${escapeHtml(value)}"
+          aria-label="Remove ${escapeHtml(value)} suggestion"
+        >
+          X
+        </button>
+      </div>
     `)
     .join("");
   field.list.classList.remove("hidden");
@@ -686,6 +763,9 @@ function handleFormSubmit(event) {
     state.items = [...state.items, nextItem];
   }
 
+  restoreSuggestionValue("country", nextItem.country);
+  restoreSuggestionValue("category", nextItem.category);
+
   const restoreDetails = state.returnToDetailsOnFormClose;
   saveAndRender();
   closeForm({ restoreDetails });
@@ -754,7 +834,13 @@ function registerEvents() {
     });
 
     field.input.addEventListener("blur", () => {
-      window.setTimeout(() => closeSuggestionList(fieldName), SUGGESTION_CLOSE_DELAY_MS);
+      window.setTimeout(() => {
+        if (state.suggestionInteractionField === fieldName) {
+          return;
+        }
+
+        closeSuggestionList(fieldName);
+      }, SUGGESTION_CLOSE_DELAY_MS);
     });
 
     field.input.addEventListener("keydown", (event) => {
@@ -764,14 +850,54 @@ function registerEvents() {
     });
 
     field.list.addEventListener("pointerdown", (event) => {
-      const suggestionButton = event.target.closest("[data-suggestion-value]");
-
-      if (!suggestionButton) {
+      if (!event.target.closest("[data-suggestion-value]")) {
         return;
       }
 
-      event.preventDefault();
-      applySuggestionValue(fieldName, suggestionButton.dataset.suggestionValue);
+      beginSuggestionInteraction(fieldName);
+    });
+
+    ["pointerup", "pointercancel"].forEach((eventName) => {
+      field.list.addEventListener(eventName, () => {
+        endSuggestionInteraction(fieldName);
+      });
+    });
+
+    field.list.addEventListener("click", (event) => {
+      const removeButton = event.target.closest("[data-suggestion-remove]");
+
+      if (removeButton) {
+        event.preventDefault();
+        hideSuggestionValue(fieldName, removeButton.dataset.suggestionValue);
+        renderSuggestionList(fieldName);
+        field.input.focus();
+        return;
+      }
+
+      const suggestionRow = event.target.closest("[data-suggestion-value]");
+
+      if (!suggestionRow) {
+        return;
+      }
+
+      applySuggestionValue(fieldName, suggestionRow.dataset.suggestionValue);
+    });
+
+    field.list.addEventListener("keydown", (event) => {
+      if (event.target.closest("[data-suggestion-remove]")) {
+        return;
+      }
+
+      const suggestionRow = event.target.closest("[data-suggestion-value]");
+
+      if (!suggestionRow) {
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        applySuggestionValue(fieldName, suggestionRow.dataset.suggestionValue);
+      }
     });
   });
 
@@ -829,11 +955,11 @@ function registerEvents() {
   });
 
   document.addEventListener("click", (event) => {
-    if (!state.backupMenuOpen) {
-      return;
+    if (state.activeSuggestionField && !event.target.closest(".field--suggested")) {
+      closeAllSuggestionLists();
     }
 
-    if (!event.target.closest("[data-backup-menu]")) {
+    if (state.backupMenuOpen && !event.target.closest("[data-backup-menu]")) {
       setBackupMenuOpen(false);
     }
   });

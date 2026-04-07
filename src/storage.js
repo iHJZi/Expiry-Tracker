@@ -1,9 +1,26 @@
 import { normalizeDateInput } from "./utils.js";
 
 const STORAGE_KEY = "expiry-tracker-items-v1";
+const HIDDEN_SUGGESTIONS_STORAGE_KEY = "expiry-tracker-hidden-suggestions-v1";
 
 function normalizeString(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeSuggestionValue(value) {
+  return normalizeString(value).toLowerCase();
+}
+
+function normalizeHiddenSuggestionList(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return [...new Set(
+    values
+      .map((value) => normalizeSuggestionValue(value))
+      .filter(Boolean),
+  )];
 }
 
 function normalizeTimestamp(value, fallback) {
@@ -115,6 +132,35 @@ export function saveItems(items) {
     : [];
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedItems));
+}
+
+export function loadHiddenSuggestions() {
+  try {
+    const raw = localStorage.getItem(HIDDEN_SUGGESTIONS_STORAGE_KEY);
+
+    if (!raw) {
+      return { country: [], category: [] };
+    }
+
+    const parsed = JSON.parse(raw);
+
+    return {
+      country: normalizeHiddenSuggestionList(parsed?.country),
+      category: normalizeHiddenSuggestionList(parsed?.category),
+    };
+  } catch (error) {
+    console.error("Failed to load hidden suggestions", error);
+    return { country: [], category: [] };
+  }
+}
+
+export function saveHiddenSuggestions(hiddenSuggestions) {
+  const normalizedPayload = {
+    country: normalizeHiddenSuggestionList(hiddenSuggestions?.country),
+    category: normalizeHiddenSuggestionList(hiddenSuggestions?.category),
+  };
+
+  localStorage.setItem(HIDDEN_SUGGESTIONS_STORAGE_KEY, JSON.stringify(normalizedPayload));
 }
 
 export function buildItemPayload(formValues, existingItem) {
