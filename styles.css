@@ -568,6 +568,16 @@ button {
   max-height: none;
 }
 
+#details-sheet .sheet__panel {
+  --details-sheet-top-space: max(16px, calc(env(safe-area-inset-top) + 10px));
+  margin: var(--details-sheet-top-space) auto 0;
+  max-height: min(92vh, calc(100dvh - var(--details-sheet-top-space)));
+}
+
+#details-sheet .sheet__header {
+  padding-top: 2px;
+}
+
 #form-sheet {
   align-items: stretch;
   padding: 0;
@@ -1286,6 +1296,10 @@ button {
     border-radius: 13px;
   }
 
+  #details-sheet .sheet__panel {
+    --details-sheet-top-space: max(20px, calc(env(safe-area-inset-top) + 12px));
+  }
+
   .item-card__body {
     gap: 12px;
   }
@@ -1326,6 +1340,11 @@ button {
 
   .sheet__panel {
     border-radius: 28px;
+    max-height: min(780px, 92vh);
+  }
+
+  #details-sheet .sheet__panel {
+    margin-top: 0;
     max-height: min(780px, 92vh);
   }
 
